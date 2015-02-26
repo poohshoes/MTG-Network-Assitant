@@ -1,0 +1,10 @@
+*.suo
+*.user
+*.sln.docstates
+*.userprefs
+
+[Bb]in/
+[Oo]bj/
+
+# There's too many image files to store them here.
+*.jpg

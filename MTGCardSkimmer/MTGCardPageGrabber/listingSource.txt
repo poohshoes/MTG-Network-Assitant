@@ -1,0 +1,906 @@
+﻿
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="author" content="Leaping Frog Studios" />
+  <meta name="publisher" content="Leaping Frog Studios" />
+  <meta name="robots" content="index, follow, all" />
+  <meta name="distribution" content="global" />
+  <meta name="revisit-after" content="5 days" />
+    <meta name="description" content="Search and filter the Magic The Gathering card database" />
+  <title>Magic The Gathering full card listing - Deckbox</title>
+
+  <link href="/assets/main-74149ff875634240fdf928e34de23b95.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <script src="/assets/main-724a07ea0bddc7dae05fffec10ea9b56.js" type="text/javascript"></script></head>
+<body class="">
+<script type="text/javascript">
+  Tcg.setCsrf("FHswItrRYv+GWp6l3Y4y4Dbfi6Q/4sUuSD6fOZYGXko=");
+    Tcg.users.isPremium = false;
+  Tcg.users.isOldBasic = false;
+
+Element.observe(document, 'dom:loaded', function() {
+    Tcg.initialize();
+    Tcg.config.host = "deckbox.org";
+
+});
+
+</script>
+
+<div id="wrapper">
+  <div id="header">
+    <div id="nav">
+  <ul class="main_dropdown">
+        <li class="logo"><a href="/"><img src="/images/logos/logo-100x20.png" /></a></li>
+
+      <li class="main">
+        <a class="last" href="/accounts/login?return_to=/games/mtg/cards?f=53178&amp;p=9"><img src="/images/icon_spacer.gif" class="sprite s_key ">Login</a>
+      </li>
+
+      <li class="main"><a href="/premium">Premium <img src="/images/icon_spacer.gif" class="sprite s_new "></a></li>
+    <li class="main"><a href="/help/start">Help</a></li>
+    <li class="main"><a href="/forum">Forum</a>
+      
+    </li>
+    <li class="main"><a 
+                        href="/market">Marketplace</a></li>
+    <li class="main"><a  
+                        href="/communities">Communities</a></li>
+
+    <li class="main">
+      <a class=&quot;current&quot; href="/games">Card & Deck Database</a>
+      <ul class="subsection">
+        <li><a class="simple" href="/games/mtg/cards"><img src="/images/icon_spacer.gif" class="sprite s_mtg ">Magic the Gathering Cards</a></li>
+        <li><a class="simple" href="/editions"><img src="/images/icon_spacer.gif" class="sprite s_pictures_simple ">Magic the Gathering Editions</a></li>
+        <li><a class="simple" href="/statistics"><img src="/images/icon_spacer.gif" class="sprite s_chart_bar ">Magic the Gathering Statistics</a></li>
+        <li><a class="simple" href="/decks/mtg"><img src="/images/icon_spacer.gif" class="sprite s_deck ">Magic the Gathering Decks</a></li>
+        <li><a class="simple" href="/games/whi/cards"><img src="/images/icon_spacer.gif" class="sprite s_whi ">Warhammer Invasion</a></li>
+        <li><a class="simple" href="/games/wow/cards"><img src="/images/icon_spacer.gif" class="sprite s_wow ">World of Warcraft</a></li>
+      </ul>
+    </li>
+
+    <li class="main qs">
+      <a href="#" onclick="Tcg.mtgCard.qsDialog();return false;" class="current">
+        <img src="/images/icon_spacer.gif" class="sprite s_search " data-title="Open quicksearch dialog for Mtg cards">
+      </a>
+    </li>
+  </ul>
+  <div class="clear">&nbsp;</div>
+</div>
+      </div>
+
+  <div id="main-content">
+    <table class='cols'>
+<tr>
+<td class='col left_menu'><ul>
+    <li class="main_menu_item"><img src="/images/icon_spacer.gif" class="sprite s_mtg ">MAGIC THE GATHERING</li>
+    <li>
+      <ul class="submenu">
+        <li class="submenu_entry current">
+          <a class="simple" href="/games/mtg/cards"><img src="/images/icon_spacer.gif" class="sprite s_table ">Full Card Database</a>
+        </li>
+            <li class="submenu_entry ">
+              <a href="/editions"><img src="/images/icon_spacer.gif" class="sprite s_pictures_simple ">Editions & Printings</a>
+            </li>
+            <li class="submenu_entry ">
+              <a href="/statistics"><img src="/images/icon_spacer.gif" class="sprite s_chart_bar ">The Deckbox Trade Index</a>
+            </li>
+        <li class="submenu_entry ">
+          <a class="simple" href="/decks/mtg"><img src="/images/icon_spacer.gif" class="sprite s_deck ">Deck Database</a>
+        </li>
+          <li class="submenu_entry ">
+            <a class="simple" href="/games/mtg/events"><img src="/images/icon_spacer.gif" class="sprite s_calendar ">
+              Top Decks at Events
+            </a>
+          </li>
+      </ul>
+    </li>
+    <li class="main_menu_item"><img src="/images/icon_spacer.gif" class="sprite s_whi ">WARHAMMER INVASION</li>
+    <li>
+      <ul class="submenu">
+        <li class="submenu_entry ">
+          <a class="simple" href="/games/whi/cards"><img src="/images/icon_spacer.gif" class="sprite s_table ">Full Card Database</a>
+        </li>
+        <li class="submenu_entry ">
+          <a class="simple" href="/decks/whi"><img src="/images/icon_spacer.gif" class="sprite s_deck ">Deck Database</a>
+        </li>
+      </ul>
+    </li>
+    <li class="main_menu_item"><img src="/images/icon_spacer.gif" class="sprite s_wow ">WORLD OF WARCRAFT</li>
+    <li>
+      <ul class="submenu">
+        <li class="submenu_entry ">
+          <a class="simple" href="/games/wow/cards"><img src="/images/icon_spacer.gif" class="sprite s_table ">Full Card Database</a>
+        </li>
+        <li class="submenu_entry ">
+          <a class="simple" href="/decks/wow"><img src="/images/icon_spacer.gif" class="sprite s_deck ">Deck Database</a>
+        </li>
+      </ul>
+    </li>
+</ul>
+
+<div style="padding:20px 0;border-top:1px solid #EFECE7;">
+  <iframe src="https://www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FDeckbox%2F141206785897194&amp;width=200&amp;connections=0&amp;stream=false&amp;header=false&amp;height=62" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:200px; height:62px;" allowTransparency="true"></iframe>
+  <a href="https://www.twitter.com/deckbox_org" target="_blank" style="padding-left:20px;">
+    <img style="padding-top:10px" src="https://twitter-badges.s3.amazonaws.com/follow_us-b.png" alt="Follow deckbox_org on Twitter"/>
+  </a>
+</div></td>
+<td class='col content' id='content'><div class="page_header section_header">
+    <span class="section_title"><img src="/images/icon_spacer.gif" class="sprite s_mtg ">Cards</span>
+    <ul class="section_title_controls hover_dropdown">
+        <li class="main"><a class="simple" href="#" onclick="Tcg.set.switchView('v');return false;"><img src="/images/icon_spacer.gif" class="sprite s_picture ">Spoiler View</a></li>
+</ul>
+<div class="clear">&nbsp;</div>
+
+</div>
+    <div class="leaderboard">
+      <div class="google_ad">
+          <script type='text/javascript'><!--//<![CDATA[
+          var m3_u = (location.protocol=='https:'?'https://deckbox.org/revive/www/delivery/ajs.php':'http://deckbox.org/revive/www/delivery/ajs.php');
+          var m3_r = Math.floor(Math.random()*99999999999);
+          if (!document.MAX_used) document.MAX_used = ',';
+          document.write ("<scr"+"ipt type='text/javascript' src='"+m3_u);
+          document.write ("?zoneid=1");
+          document.write ('&amp;cb=' + m3_r);
+          if (document.MAX_used != ',') document.write ("&amp;exclude=" + document.MAX_used);
+          document.write (document.charset ? '&amp;charset='+document.charset : (document.characterSet ? '&amp;charset='+document.characterSet : ''));
+          document.write ("&amp;loc=" + escape(window.location));
+          if (document.referrer) document.write ("&amp;referer=" + escape(document.referrer));
+          if (document.context) document.write ("&context=" + escape(document.context));
+          if (document.mmm_fo) document.write ("&amp;mmm_fo=1");
+          document.write ("'><\/scr"+"ipt>");
+          //]]>--></script><noscript><a href='http://deckbox.org/revive/www/delivery/ck.php?n=a64b4763&amp;cb=INSERT_RANDOM_NUMBER_HERE' target='_blank'><img src='http://deckbox.org/revive/www/delivery/avw.php?zoneid=1&amp;cb=INSERT_RANDOM_NUMBER_HERE&amp;n=a64b4763' border='0' alt='' /></a></noscript>
+      </div>
+      <div class="placeholder">
+        <div style="width:343px;display:inline-block;margin-left:10px">
+          <img height='16px' src='/images/logos/logo-16x16-dark.png' style='margin: 0 10px -3px -3px' width='16px'>
+<b>Marketplace deals</b>
+<br>
+<div style='margin:8px 0 8px 15px'>
+<a class='simple' href='https://deckbox.org/mtg/Godless%20Shrine?printing=20717' target='_blank'>Godless Shrine</a>
+
+  <div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/GTC_R.jpg' data-title='Gatecrash (Card #242)' class='' />
+     </div>  
+  <img src='/images/icon_spacer.gif' class='sprite s_star3' data-title='Good (Lightly Played)' />  <img src='/images/icon_spacer_16_11.gif' class='flag flag-us' data-title='English'/>              
+<div class='sell_price inline_block'>$7.65</div>
+
+</div>
+<a class='btn btn-primary btn-sm' href='/users/9700377?utm_ad=te'>Visit Seller Page</a>
+
+        </div>
+        <div style="width:343px;display:inline-block;padding:7px 15px;line-height:1.7">
+          <img src="/images/logos/logo-16x16-dark.png" height="16px" width="16px" style="" />
+          <b>Support Deckbox</b>, remove ads, and unlock access to exclusive features.
+          As low as&nbsp;&nbsp;
+          <span class="big_price">€3.99 / month!</span><br/>
+          <a class="btn btn-success btn-sm" href="/premium" style="margin-top:6px">Get Premium</a>
+        </div>
+      </div>
+    </div>
+
+
+<script type="text/javascript">
+    Element.observe(document, 'dom:loaded', function() {
+        Tcg.filters = new Tcg.Filters(
+                [{"code":"1","type":"string"},{"code":"2","type":"string"},{"code":"3","type":"many_to_many"},{"code":"4","type":"string"},{"code":"5","type":"many_to_many"},{"code":"b","type":"many_to_many"},{"code":"6","type":"many_to_many"},{"code":"7","type":"many_to_many"},{"code":"a","type":"integer"}],
+                false,
+                false);
+    });
+</script>
+
+<div id="filters" style="">
+  <form onsubmit="Tcg.filters.apply(); return false;" action="#">
+    <table style="margin:0 0 10px 15px">
+          <tr id="filter_wrapper_1" style="">
+
+            <td >
+              <input id="filter_check_1" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('1');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_1">Name</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_1" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Contains","7",{"title":null}],["Does not contain","8",{"title":null}]], {
+                      id: 'filter_operator_1',
+                      initial: ["7"],
+                      button: { parent: $('_container_operators_1') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <input id="filter_values_1" name="filter_values_1" size="20" type="text" />
+            </td>
+          </tr>
+          <tr id="filter_wrapper_2" style="display:none">
+
+            <td >
+              <input id="filter_check_2" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('2');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_2">Rules Text</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_2" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Contains","7",{"title":null}],["Does not contain","8",{"title":null}]], {
+                      id: 'filter_operator_2',
+                      initial: ["7"],
+                      button: { parent: $('_container_operators_2') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <input id="filter_values_2" name="filter_values_2" size="20" type="text" />
+            </td>
+          </tr>
+          <tr id="filter_wrapper_3" style="display:none">
+
+            <td >
+              <input id="filter_check_3" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('3');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_3">Type</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_3" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Is one of","3",{"title":"Entries that correspond to ANY of the options you select for this property"}],["Is all of","1",{"title":"Entries that correspond to ALL the options you select for this property"}]], {
+                      id: 'filter_operator_3',
+                      initial: ["3"],
+                      button: { parent: $('_container_operators_3') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <div id="_container_3" class="_button_container"></div>
+                      <script type="text/javascript">
+                          var _d = new DropdownMulti([["Artifact","1"],["Creature","2"],["Enchantment","3"],["Instant","4"],["Land","5"],["Planeswalker","6"],["Sorcery","7"],["Tribal","8"],["Plane","9"],["Scheme","10"],["Vanguard","11"],["Phenomenon","12"],["Conspiracy","13"],["Token","18"],["Emblem","19"]], {
+                              id: 'filter_values_3',
+                              button: { parent: $('_container_3') },
+                              
+                              initial: null
+                          });
+                      </script>
+            </td>
+          </tr>
+          <tr id="filter_wrapper_4" style="display:none">
+
+            <td >
+              <input id="filter_check_4" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('4');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_4">Subtype</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_4" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Contains","7",{"title":null}],["Does not contain","8",{"title":null}]], {
+                      id: 'filter_operator_4',
+                      initial: ["7"],
+                      button: { parent: $('_container_operators_4') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <input id="filter_values_4" name="filter_values_4" size="20" type="text" />
+            </td>
+          </tr>
+          <tr id="filter_wrapper_5" style="">
+
+            <td >
+              <input id="filter_check_5" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('5');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_5">Edition Printed In</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_5" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Is one of","3",{"title":"Entries that correspond to ANY of the options you select for this property"}],["Is none of","2",{"title":null}]], {
+                      id: 'filter_operator_5',
+                      initial: ["3"],
+                      button: { parent: $('_container_operators_5') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <div id="_container_5" class="_button_container"></div>
+                      <script type="text/javascript">
+                          var _d = new DropdownMulti([["Fate Reforged","322"],["Khans of Tarkir","305"],["Magic 2015 Core Set","178"],["Journey into Nyx","175"],["Born of the Gods","122"],["Theros","120"],["Magic 2014 Core Set","117"],["Dragon's Maze","115"],["Gatecrash","113"],["Return to Ravnica","111"],["Magic 2013","106"],["Avacyn Restored","103"],["Dark Ascension","101"],["Innistrad","97"],["Magic 2012","96"],["New Phyrexia","93"],["Mirrodin Besieged","92"],["Scars of Mirrodin","90"],["Magic 2011","87"],["Rise of the Eldrazi","83"],["Worldwake","80"],["Zendikar","79"],["Magic 2010","77"],["Alara Reborn","76"],["Conflux","75"],["Shards of Alara","74"],["Eventide","73"],["Shadowmoor","72"],["Morningtide","71"],["Lorwyn","70"],["Tenth Edition","69"],["Future Sight","68"],["Planar Chaos","67"],["Time Spiral \"Timeshifted\"","66"],["Time Spiral","65"],["Dissension","64"],["Guildpact","63"],["Ravnica: City of Guilds","62"],["Ninth Edition","61"],["Saviors of Kamigawa","60"],["Betrayers of Kamigawa","59"],["Champions of Kamigawa","58"],["Fifth Dawn","57"],["Darksteel","56"],["Mirrodin","55"],["Eighth Edition","54"],["Scourge","53"],["Legions","52"],["Onslaught","51"],["Judgment","50"],["Torment","49"],["Odyssey","48"],["Seventh Edition","47"],["Apocalypse","46"],["Planeshift","45"],["Invasion","44"],["Prophecy","43"],["Nemesis","42"],["Mercadian Masques","41"],["Classic Sixth Edition","40"],["Urza's Destiny","39"],["Urza's Legacy","38"],["Urza's Saga","37"],["Exodus","36"],["Stronghold","35"],["Tempest","34"],["Fifth Edition","33"],["Weatherlight","32"],["Visions","31"],["Mirage","30"],["Alliances","29"],["Coldsnap","28"],["Homelands","27"],["Ice Age","26"],["Fourth Edition","25"],["Fallen Empires","24"],["The Dark","23"],["Legends","22"],["Revised Edition","21"],["Antiquities","20"],["Arabian Nights","19"],["Unlimited Edition","18"],["Limited Edition Beta","17"],["Limited Edition Alpha","16"],["Commander 2014","320"],["Conspiracy","177"],["Modern Event Deck 2014","176"],["Commander 2013","121"],["Modern Masters","116"],["Commander's Arsenal","112"],["Planechase 2012","104"],["Commander","95"],["Archenemy","86"],["Planechase","78"],["Duel Decks: Speed vs. Cunning","301"],["Duel Decks: Jace vs. Vraska","123"],["Duel Decks: Heroes vs. Monsters","119"],["Duel Decks: Sorin vs. Tibalt","114"],["Duel Decks: Izzet vs. Golgari","109"],["Duel Decks: Venser vs. Koth","102"],["Duel Decks: Ajani vs. Nicol Bolas","99"],["Duel Decks: Knights vs. Dragons","94"],["Duel Decks: Elspeth vs. Tezzeret","88"],["Duel Decks: Phyrexia vs. the Coalition","82"],["Duel Decks: Garruk vs. Liliana","81"],["Duel Decks: Divine vs. Demonic","15"],["Duel Decks: Jace vs. Chandra","14"],["Duel Decks: Elves vs. Goblins","13"],["Premium Deck Series: Graveborn","100"],["Premium Deck Series: Fire and Lightning","91"],["Premium Deck Series: Slivers","85"],["From the Vault: Annihilation","180"],["From the Vault: Twenty","118"],["From the Vault: Realms","110"],["From the Vault: Legends","98"],["From the Vault: Relics","89"],["From the Vault: Exiled","84"],["From the Vault: Dragons","12"],["International Collectors' Edition","174"],["Collector's Edition","173"],["Anthologies","169"],["Duels of the Planeswalkers","166"],["Vanguard","105"],["Beatdown Box Set","11"],["Battle Royale Box Set","10"],["Chronicles","9"],["Starter 2000","7"],["Starter 1999","6"],["Portal Three Kingdoms","5"],["Portal Second Age","4"],["Portal","3"],["Unhinged","2"],["Unglued","1"],["Ugin's Fate Promos","324"],["Intro Pack Alternate Art","306"],["Magic 2015 Clash Pack Promos","179"],["Introductory Two-Player Set","172"],["Unhinged Alternate Foils","171"],["Deckmasters","170"],["Multiverse Gift Box Cards","168"],["Coldsnap Theme Decks","167"],["Legend Membership","165"],["Media Inserts","164"],["Celebration Cards","163"],["WotC Online Store","162"],["Asia Pacific Land Program","161"],["Guru","160"],["European Land Program","159"],["Portal Demogame","158"],["Judge Gift Program","157"],["Happy Holidays","156"],["Super Series","155"],["Magic Player Rewards","154"],["Friday Night Magic","153"],["Arena League","152"],["Two-Headed Giant Tournament","151"],["Champs","150"],["WPN/Gateway","149"],["Summer of Magic","148"],["Launch Parties","147"],["Release Events","146"],["Prerelease Events: Fate Reforged","325"],["Prerelease Events: Khans of Tarkir","309"],["Prerelease Events","145"],["Dragon Con","144"],["World Magic Cup Qualifiers","143"],["Worlds","142"],["Magic Game Day Cards","141"],["Pro Tour","140"],["Grand Prix","139"],["15th Anniversary","138"],["Promo set for Gatherer","8"],["Oversized: Commander 2013","319"],["Oversized: Commander's Arsenal","318"],["Oversized: Commander Launch Promos","317"],["Oversized: Commander","316"],["Oversized: 9x12","315"],["Oversized: Magic Player Rewards","314"],["Oversized: Helvault","313"],["Oversized: Ninth Edition Box Toppers","312"],["Oversized: Eighth Edition Box Toppers and Promos","311"],["Oversized: 6x9","310"],["Extras: Fate Reforged","323"],["Extras: Commander 2014","321"],["Extras: Modern Event Deck 2014","308"],["Extras: Khans of Tarkir","307"],["Extras: Duel Decks: Jace vs. Vraska","304"],["Extras: Magic 2015 Core Set","303"],["Extras: Conspiracy","302"],["Extras: Journey into Nyx","300"],["Extras: Born of the Gods","299"],["Extras: Magic 2014","298"],["Extras: Theros","297"],["Extras: Duel Decks: Heroes vs. Monsters","296"],["Extras: Modern Masters","295"],["Extras: Dragon's Maze","294"],["Extras: Duel Decks: Sorin vs. Tibalt","293"],["Extras: Gatecrash","292"],["Extras: Judge","291"],["Extras: League","290"],["Extras: Return to Ravnica","289"],["Extras: Duel Decks: Izzet vs. Golgari","288"],["Extras: Magic 2013","287"],["Extras: Avacyn Restored (The Helvault Experience)","286"],["Extras: Avacyn Restored","285"],["Extras: Duel Decks: Venser vs. Koth","284"],["Extras: Friday Night Magic","283"],["Extras: Dark Ascension","282"],["Extras: Innistrad","281"],["Extras: Duel Decks: Ajani vs. Nicol Bolas","280"],["Extras: Magic 2012","279"],["Extras: New Phyrexia","278"],["Extras: Duel Decks: Knights vs. Dragons","277"],["Extras: Mirrodin Besieged","276"],["Extras: Duel Decks: Elspeth vs. Tezzeret","275"],["Extras: Scars of Mirrodin","274"],["Extras: Magic 2011","273"],["Extras: Rise of the Eldrazi","272"],["Extras: Duel Decks: Phyrexia vs. The Coalition","271"],["Extras: Worldwake","270"],["Extras: Zendikar","269"],["Extras: Magic 2010","268"],["Extras: Duel Decks: Garruk vs. Liliana","267"],["Extras: Alara Reborn","266"],["Extras: Duel Decks: Divine vs. Demonic","265"],["Extras: Conflux","264"],["Extras: Duel Decks: Jace vs. Chandra","263"],["Extras: Shards of Alara","262"],["Extras: Eventide","261"],["Extras: Shadowmoor","260"],["Extras: Duel Decks: Elves vs. Goblins","259"],["Extras: Morningtide","258"],["Extras: Lorwyn","257"],["Extras: Tenth Edition","256"],["Extras: Coldsnap","255"],["Extras: Magic Player Rewards","254"]], {
+                              id: 'filter_values_5',
+                              button: { parent: $('_container_5') },
+                              filterable: true, 
+                              initial: ["178"]
+                          });
+                      </script>
+            </td>
+          </tr>
+          <tr id="filter_wrapper_b" style="">
+
+            <td >
+              <input id="filter_check_b" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('b');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_b">Format</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_b" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Is one of","3",{"title":"Entries that correspond to ANY of the options you select for this property"}],["Is none of","2",{"title":null}]], {
+                      id: 'filter_operator_b',
+                      initial: ["3"],
+                      button: { parent: $('_container_operators_b') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <div id="_container_b" class="_button_container"></div>
+                      <script type="text/javascript">
+                          var _d = new DropdownMulti([["Standard","1"],["Vintage","3"],["Legacy","4"],["Modern","5"]], {
+                              id: 'filter_values_b',
+                              button: { parent: $('_container_b') },
+                              
+                              initial: null
+                          });
+                      </script>
+            </td>
+          </tr>
+          <tr id="filter_wrapper_6" style="display:none">
+
+            <td >
+              <input id="filter_check_6" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('6');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_6">Rarity</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_6" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Is one of","3",{"title":"Entries that correspond to ANY of the options you select for this property"}],["Is none of","2",{"title":null}]], {
+                      id: 'filter_operator_6',
+                      initial: ["3"],
+                      button: { parent: $('_container_operators_6') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <div id="_container_6" class="_button_container"></div>
+                      <script type="text/javascript">
+                          var _d = new DropdownMulti([["MythicRare","6"],["Special","5"],["Rare","4"],["Uncommon","3"],["Common","2"],["BasicLand","1"]], {
+                              id: 'filter_values_6',
+                              button: { parent: $('_container_6') },
+                              
+                              initial: null
+                          });
+                      </script>
+            </td>
+          </tr>
+          <tr id="filter_wrapper_7" style="display:none">
+
+            <td >
+              <input id="filter_check_7" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('7');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_7">Color</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_7" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Is one of","3",{"title":"Entries that correspond to ANY of the options you select for this property"}],["Is all of","1",{"title":"Entries that correspond to ALL the options you select for this property"}],["Exclusively one of","9",{"title":"Entries that correspond to ANY of the options you select for this property, but NONE of the ones you do not select"}],["Exclusively all of","a",{"title":"Entries that correspond to ALL of the options you select for this property, but NONE of the ones you do not select"}]], {
+                      id: 'filter_operator_7',
+                      initial: ["3"],
+                      button: { parent: $('_container_operators_7') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <div id="_container_7" class="_button_container"></div>
+                      <script type="text/javascript">
+                          var _d = new DropdownMulti([["White","1"],["Blue","2"],["Black","3"],["Red","4"],["Green","5"],["Colorless","6"]], {
+                              id: 'filter_values_7',
+                              button: { parent: $('_container_7') },
+                              
+                              initial: null
+                          });
+                      </script>
+            </td>
+          </tr>
+          <tr id="filter_wrapper_a" style="display:none">
+
+            <td >
+              <input id="filter_check_a" type="checkbox" checked="checked" autocomplete="Off" onchange="Tcg.filters.toggle('a');"/>
+            </td>
+
+            <td style="width:200px">
+              <label for="filter_check_a">Cost</label>
+            </td>
+
+            <td>
+              <div id="_container_operators_a" class="_button_container" ></div>
+              <script type="text/javascript">
+                  new Dropdown([["Equals","4",{"title":null}],["Is larger than","5",{"title":null}],["Is smaller than","6",{"title":null}]], {
+                      id: 'filter_operator_a',
+                      initial: ["4"],
+                      button: { parent: $('_container_operators_a') }
+                  });
+              </script>
+            </td>
+
+            <td>
+                      <input id="filter_values_a" name="filter_values_a" size="3" type="text" />
+            </td>
+          </tr>
+    </table>
+
+    <button class="btn btn-primary btn-sm" onclick="Tcg.filters.apply();return false;">Apply Filters</button>
+        <button class="btn btn-primary btn-sm dropdown-toggle" onclick="return false;">
+          <span id="add_filter_button">Add More Filters</span>
+          <span class="caret"></span>
+        </button>
+
+        <script type="text/javascript">
+            new Dropdown([["Name","1"],["Rules Text","2"],["Type","3"],["Subtype","4"],["Edition Printed In","5"],["Format","b"],["Rarity","6"],["Color","7"],["Cost","a"]], {
+                persistent: false,
+                width: 150,
+                button: { id: 'add_filter_button' },
+                onSelect: function(name, value) {
+                    Tcg.filters.enable([value]);
+                }
+            });
+        </script>
+    <button class="btn btn-default btn-sm" onclick="Tcg.filters.clearAll();return false;">Clear All</button>
+    <input type="submit" value="Do it!" class="hidden"/>
+  </form>
+</div>
+<script>
+              Tcg.CardAutocompletedInput.create('filter_values_1', 1,
+                function() { Tcg.filters.apply() });</script><div id="show_simple_contents">
+  <div class='bordered_table'>
+<div class="controls">
+
+      <div id="columns_container" class="_button_container">
+        <div id= "columns_button" class="_button _dropdown"><span>Columns</span></div>
+      </div>
+      <script type="text/javascript">
+          var _d_c = new DropdownMulti([["Cost","c"],["Edition","e"],["Price","i"],["Price","j"],["Minimum Price","k"],["Toughness","o"],["Power","p"],["Type","t"]], {
+              id: 'filter_values_columns',
+              persistent: false,
+              applyBtnTxt: 'Apply', onApply: function() { Tcg.set.setColumns(_d_c.selectedValues.values()); },
+              button: { id: 'columns_button' },
+              initial: ["c","e","i","j","t"]
+          });
+      </script>
+  
+  
+    <div id="set_action_loading" style="display:none;"><img src="/images/loading_small.gif" /></div>
+  
+    <div class="pagination_controls">
+  <b>269</b> total results &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="/games/mtg/cards?f=53178&amp;p=1">First</a>
+      <a href="/games/mtg/cards?f=53178&amp;p=8">Previous</a>
+
+  <span>Page 9 of 9</span>
+  
+</div>
+
+<div class="clear">&nbsp;</div>
+  <div class="clear"></div>
+</div>
+
+<table class='main set_cards simple_table with_details'>
+<tr>
+
+<th rowspan='2'><a href='#' onclick="Tcg.utils.sortBy('n', 'a');return false;">Name&nbsp;<img class="icon_sort sprite s_arrow_up" src="/images/icon_spacer.gif" /></a></th>
+<th rowspan='2'><a href='#' onclick="Tcg.utils.sortBy('t', 'a');return false;">Type</a></th>
+<th class='smaller'><a href='#' onclick="Tcg.utils.sortBy('c', 'a');return false;">Cost</a></th>
+<th class='smaller'><a href='#' onclick="Tcg.utils.sortBy('e', 'd');return false;">Edition</a></th>
+<th rowspan='2'><a href='#' onclick="Tcg.utils.sortBy('i', 'd');return false;">Price</a></th>
+</tr>
+<tr>
+<th class='smaller'><a href='#' onclick="Tcg.utils.sortBy('a', 'a');return false;">Color</a></th>
+<th class='smaller'><a href='#' onclick="Tcg.utils.sortBy('r', 'd');return false;">Rarity</a></th>
+</tr>
+
+<tr id='12364_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Torch%20Fiend' target='_blank'>Torch Fiend</a>
+</td>
+<td>Creature  - Devil</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_R' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='531_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Tormod%27s%20Crypt' target='_blank'>Tormod's Crypt</a>
+</td>
+<td>Artifact</td>
+<td class='center'><img class='mtg_mana mtg_mana_0' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.13</td>
+</tr>
+<tr id='14331_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Triplicate%20Spirits' target='_blank'>Triplicate Spirits</a>
+</td>
+<td>Sorcery</td>
+<td class='center'><img class='mtg_mana mtg_mana_4' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_W' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_W' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='11951_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Turn%20to%20Frog' target='_blank'>Turn to Frog</a>
+</td>
+<td>Instant</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_U' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.13</td>
+</tr>
+<tr id='12066_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Typhoid%20Rats' target='_blank'>Typhoid Rats</a>
+</td>
+<td>Creature  - Rat</td>
+<td class='center'><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/FRF_C.jpg' data-title='Last Important Printing - Fate Reforged' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.12</td>
+</tr>
+<tr id='14278_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Tyrant%27s%20Machine' target='_blank'>Tyrant's Machine</a>
+</td>
+<td>Artifact</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14276_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Ulcerate' target='_blank'>Ulcerate</a>
+</td>
+<td>Instant</td>
+<td class='center'><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14383_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Undergrowth%20Scavenger' target='_blank'>Undergrowth Scavenger</a>
+</td>
+<td>Creature  - Fungus Horror</td>
+<td class='center'><img class='mtg_mana mtg_mana_3' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_G' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14309_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Unmake%20the%20Graves' target='_blank'>Unmake the Graves</a>
+</td>
+<td>Instant</td>
+<td class='center'><img class='mtg_mana mtg_mana_4' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='1531_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Urborg%2C%20Tomb%20of%20Yawgmoth' target='_blank'>Urborg, Tomb of Yawgmoth</a>
+</td>
+<td>Legendary Land</td>
+<td class='center'></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_R.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$6.58</td>
+</tr>
+<tr id='14374_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Venom%20Sliver' target='_blank'>Venom Sliver</a>
+</td>
+<td>Creature  - Sliver</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_G' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.28</td>
+</tr>
+<tr id='13287_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Verdant%20Haven' target='_blank'>Verdant Haven</a>
+</td>
+<td>Enchantment  - Aura</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_G' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14316_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Vineweft' target='_blank'>Vineweft</a>
+</td>
+<td>Enchantment  - Aura</td>
+<td class='center'><img class='mtg_mana mtg_mana_G' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14362_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Void%20Snare' target='_blank'>Void Snare</a>
+</td>
+<td>Sorcery</td>
+<td class='center'><img class='mtg_mana mtg_mana_U' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='12246_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Walking%20Corpse' target='_blank'>Walking Corpse</a>
+</td>
+<td>Creature  - Zombie</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.15</td>
+</tr>
+<tr id='8613_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Wall%20of%20Essence' target='_blank'>Wall of Essence</a>
+</td>
+<td>Creature  - Wall</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_W' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='1742_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Wall%20of%20Fire' target='_blank'>Wall of Fire</a>
+</td>
+<td>Creature  - Wall</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_R' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_R' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='10577_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Wall%20of%20Frost' target='_blank'>Wall of Frost</a>
+</td>
+<td>Creature  - Wall</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_U' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_U' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.33</td>
+</tr>
+<tr id='14290_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Wall%20of%20Limbs' target='_blank'>Wall of Limbs</a>
+</td>
+<td>Creature  - Zombie Wall</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='6898_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Wall%20of%20Mulch' target='_blank'>Wall of Mulch</a>
+</td>
+<td>Creature  - Wall</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_G' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14330_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Warden%20of%20the%20Beyond' target='_blank'>Warden of the Beyond</a>
+</td>
+<td>Creature  - Human Wizard</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_W' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14337_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Waste%20Not' target='_blank'>Waste Not</a>
+</td>
+<td>Enchantment</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_R.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$4.00</td>
+</tr>
+<tr id='10615_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Welkin%20Tern' target='_blank'>Welkin Tern</a>
+</td>
+<td>Creature  - Bird</td>
+<td class='center'><img class='mtg_mana mtg_mana_1' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_U' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14286_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Will-Forged%20Golem' target='_blank'>Will-Forged Golem</a>
+</td>
+<td>Artifact Creature  - Golem</td>
+<td class='center'><img class='mtg_mana mtg_mana_6' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14288_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Witch%27s%20Familiar' target='_blank'>Witch's Familiar</a>
+</td>
+<td>Creature  - Frog</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='14314_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Xathrid%20Slyblade' target='_blank'>Xathrid Slyblade</a>
+</td>
+<td>Creature  - Human Assassin</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_U.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+<tr id='1375_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Yavimaya%20Coast' target='_blank'>Yavimaya Coast</a>
+</td>
+<td>Land</td>
+<td class='center'></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_R.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$4.82</td>
+</tr>
+<tr id='14348_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Yisan%2C%20the%20Wanderer%20Bard' target='_blank'>Yisan, the Wanderer Bard</a>
+</td>
+<td>Legendary Creature  - Human Rogue</td>
+<td class='center'><img class='mtg_mana mtg_mana_2' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_G' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_R.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.88</td>
+</tr>
+<tr id='11031_main'>
+<td class='card_name'>
+<a class='simple' href='https://deckbox.org/mtg/Zof%20Shade' target='_blank'>Zof Shade</a>
+</td>
+<td>Creature  - Shade</td>
+<td class='center'><img class='mtg_mana mtg_mana_3' src='/images/icon_spacer.gif'  /><img class='mtg_mana mtg_mana_B' src='/images/icon_spacer.gif'  /></td>
+<td class='center'><div class='mtg_edition_container ' onclick=''>
+       <img src='/images/mtg/editions/M15_C.jpg' data-title='Last Important Printing - Magic 2015 Core Set' class='' />
+     </div></td>
+<td class='center price_avg minimum_width'>$0.10</td>
+</tr>
+</table>
+<div class='controls'><div class="pagination_controls">
+  <b>269</b> total results &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="/games/mtg/cards?f=53178&amp;p=1">First</a>
+      <a href="/games/mtg/cards?f=53178&amp;p=8">Previous</a>
+
+  <span>Page 9 of 9</span>
+  
+</div>
+
+<div class="clear">&nbsp;</div>
+</div>
+</div>
+
+</div>
+<script type="text/javascript">
+    Element.observe(document, 'dom:loaded', function() {
+        Tcg.set = new Tcg.FullSet({game_id: 1}, {"12364":{"id":12364,"name":"Torch Fiend","count":null,"section":null},"531":{"id":531,"name":"Tormod's Crypt","count":null,"section":null},"14331":{"id":14331,"name":"Triplicate Spirits","count":null,"section":null},"11951":{"id":11951,"name":"Turn to Frog","count":null,"section":null},"12066":{"id":12066,"name":"Typhoid Rats","count":null,"section":null},"14278":{"id":14278,"name":"Tyrant's Machine","count":null,"section":null},"14276":{"id":14276,"name":"Ulcerate","count":null,"section":null},"14383":{"id":14383,"name":"Undergrowth Scavenger","count":null,"section":null},"14309":{"id":14309,"name":"Unmake the Graves","count":null,"section":null},"1531":{"id":1531,"name":"Urborg, Tomb of Yawgmoth","count":null,"section":null},"14374":{"id":14374,"name":"Venom Sliver","count":null,"section":null},"13287":{"id":13287,"name":"Verdant Haven","count":null,"section":null},"14316":{"id":14316,"name":"Vineweft","count":null,"section":null},"14362":{"id":14362,"name":"Void Snare","count":null,"section":null},"12246":{"id":12246,"name":"Walking Corpse","count":null,"section":null},"8613":{"id":8613,"name":"Wall of Essence","count":null,"section":null},"1742":{"id":1742,"name":"Wall of Fire","count":null,"section":null},"10577":{"id":10577,"name":"Wall of Frost","count":null,"section":null},"14290":{"id":14290,"name":"Wall of Limbs","count":null,"section":null},"6898":{"id":6898,"name":"Wall of Mulch","count":null,"section":null},"14330":{"id":14330,"name":"Warden of the Beyond","count":null,"section":null},"14337":{"id":14337,"name":"Waste Not","count":null,"section":null},"10615":{"id":10615,"name":"Welkin Tern","count":null,"section":null},"14286":{"id":14286,"name":"Will-Forged Golem","count":null,"section":null},"14288":{"id":14288,"name":"Witch's Familiar","count":null,"section":null},"14314":{"id":14314,"name":"Xathrid Slyblade","count":null,"section":null},"1375":{"id":1375,"name":"Yavimaya Coast","count":null,"section":null},"14348":{"id":14348,"name":"Yisan, the Wanderer Bard","count":null,"section":null},"11031":{"id":11031,"name":"Zof Shade","count":null,"section":null}});
+    });
+</script>
+</td>
+</tr>
+</table>
+
+    <div style="clear:both;"></div>
+  </div>
+</div>
+
+<div id="footer">
+  <ul>
+    <li><a href="/help/contact">Contact & About</a></li>
+    <li><a href="/help/legal">Terms & Conditions</a></li>
+    <li><a href="/help/privacy">Privacy Policy</a></li>
+    <li><a href="/premium"><img src='/images/icons/32x32/ok.png' style='width:16px;height:16px;margin:0 5px -3px 0;'  />Premium</a></li>
+  </ul>
+
+  <div class="clear"></div>
+  <div class="copy" style="display: none;">
+    &copy; 2009-2012 deckbox.org.
+      Images, logos, and product names are &copy; and &trade; by their respective owners (Blizzard, The Upper Deck Company,
+      Wizards of the Coast, Fantasy Flight Games)
+  </div>
+</div>
+
+
+<div id="flash" class="rounded box" style="display:none"><div class="padding10"></div></div>
+<script type="text/javascript">  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-8902791-1', 'auto');
+  ga('send', 'pageview');
+Element.observe(document, 'dom:loaded', function() { Tcg.postInitAndRender(); });
+</script>
+</body>
+</html>
+
