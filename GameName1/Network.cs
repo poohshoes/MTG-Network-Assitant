@@ -148,6 +148,29 @@ namespace GameName1
                         }
                     }
                     break;
+                case NetworkMessageType.CreateMana:
+                    {
+                        int manaBoxIndex = msg.ReadInt32();
+                        int manaType = msg.ReadInt32();
+                        game.manaBoxes[manaBoxIndex, manaType]++;
+                    }
+                    break;
+                case NetworkMessageType.RemoveMana:
+                    {
+                        int manaBoxIndex = msg.ReadInt32();
+                        int manaType = msg.ReadInt32();
+                        game.manaBoxes[manaBoxIndex, manaType]--;
+                    }
+                    break;
+                case NetworkMessageType.SwapMana:
+                    {
+                        int manaBoxIndex = msg.ReadInt32();
+                        int manaBoxSwapIndex = msg.ReadInt32();
+                        int manaType = msg.ReadInt32();
+                        game.manaBoxes[manaBoxIndex, manaType]--;
+                        game.manaBoxes[manaBoxSwapIndex, manaType]++;
+                    }
+                    break;
             }
         }
 
@@ -155,7 +178,10 @@ namespace GameName1
         {
             CreateEntity,
             MoveEntity,
-            TapEntity
+            TapEntity,
+            CreateMana,
+            RemoveMana,
+            SwapMana
         }
 
         internal void SendEntityCreateMessage(int entityNetworkID, string textureName, Microsoft.Xna.Framework.Vector2 entityNewPosition)
@@ -190,6 +216,43 @@ namespace GameName1
             NetOutgoingMessage message = peer.CreateMessage();
             message.Write((byte)NetworkMessageType.TapEntity);
             message.Write(entityNetworkID);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendCreateMana(int manaBoxIndex, int manaType)
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.CreateMana);
+            message.Write(manaBoxIndex);
+            message.Write(manaType);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendRemoveMana(int manaBoxIndex, int manaType)
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.RemoveMana);
+            message.Write(manaBoxIndex);
+            message.Write(manaType);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendTransferMana(int manaBoxIndex, int manaBoxSwapIndex, int manaType)
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.SwapMana);
+            message.Write(manaBoxIndex);
+            message.Write(manaBoxSwapIndex);
+            message.Write(manaType);
             if (peer.ConnectionsCount > 0)
             {
                 peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);

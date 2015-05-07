@@ -13,7 +13,7 @@ namespace KCLidgrenDebug
     {
         static void Main()
         {
-            if (false)
+            if (true)
             {
                 //if (!Debugger.IsAttached)
                 //    Debugger.Launch();
