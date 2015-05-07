@@ -13,12 +13,12 @@ namespace KCLidgrenDebug
     {
         static void Main()
         {
-            if (false)
+            if (true)
             {
                 //if (!Debugger.IsAttached)
                 //    Debugger.Launch();
                 //Debugger.Break();
-                if (Directory.GetCurrentDirectory() == "D:\\Projects\\MTG Network Play\\KCLidgrenDebug\\bin\\Debug")
+                if (Directory.GetCurrentDirectory() == "D:\\Projects\\MTGNetworkPlay\\KCLidgrenDebug\\bin\\Debug")
                 {
                     string fileDirectory = Directory.GetCurrentDirectory();
                     string copyDirectoryName = "C:\\Users\\Ian\\Desktop\\MTGMultiPlay";

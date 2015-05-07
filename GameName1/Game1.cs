@@ -229,24 +229,12 @@ namespace GameName1
                 }
                 if (keyboardState.IsKeyDown(Keys.Enter) && lastKeyboardState.IsKeyUp(Keys.Enter))
                 {
-                    string source = client.DownloadString("https://deckbox.org/mtg/" + searchText);
-                    string match = "id='card_image' src='";
-                    int matchIndex = source.IndexOf(match);
-                    if (matchIndex == -1)
+                    if (!TryGetFile(searchText))
                     {
                         searchTextColor = Color.Red;
                     }
                     else
                     {
-                        int cardID = matchIndex + match.Length;
-                        int cardIDEnd = source.IndexOf("'", cardID);
-                        string downloadLink = "https://deckbox.org" + source.Substring(cardID, cardIDEnd - cardID);
-                        string outputFileName = searchText + ".jpg";
-                        client.DownloadFile(downloadLink, "Data\\" + outputFileName);
-                        CardData data = new CardData();
-                        data.TexturePath = Path.GetFileName(outputFileName);
-                        data.Name = Path.GetFileNameWithoutExtension(outputFileName);
-                        cardData.Add(data);
                         searchText = "";
                     }
                 }
@@ -254,6 +242,30 @@ namespace GameName1
             lastKeyboardState = keyboardState;
 
             base.Update(gameTime);
+        }
+
+        public bool TryGetFile(string cardName)
+        {
+            string source = client.DownloadString("https://deckbox.org/mtg/" + cardName);
+            string match = "id='card_image' src='";
+            int matchIndex = source.IndexOf(match);
+            if (matchIndex == -1)
+            {
+                return false;
+            }
+            else
+            {
+                int cardID = matchIndex + match.Length;
+                int cardIDEnd = source.IndexOf("'", cardID);
+                string downloadLink = "https://deckbox.org" + source.Substring(cardID, cardIDEnd - cardID);
+                string outputFileName = cardName + ".jpg";
+                client.DownloadFile(downloadLink, "Data\\" + outputFileName);
+                CardData data = new CardData();
+                data.TexturePath = Path.GetFileName(outputFileName);
+                data.Name = Path.GetFileNameWithoutExtension(outputFileName);
+                cardData.Add(data);
+                return true;
+            }
         }
 
         public static bool PointInRectangle(Vector2 point, Rectangle rectangle)
@@ -375,7 +387,14 @@ namespace GameName1
 
         public Entity SpawnCard(string texturePath, int networkID)
         {
-            //if(File.Exists(
+            if(!File.Exists(Path.Combine(Content.RootDirectory, texturePath)))
+            {
+                string cardName = Path.GetFileNameWithoutExtension(texturePath);
+                if(!TryGetFile(cardName))
+                {
+                    throw new Exception("Couldn't aquire card " + texturePath);
+                }
+            }
 
             Entity card = new Entity();
             card.NetworkID = networkID;
