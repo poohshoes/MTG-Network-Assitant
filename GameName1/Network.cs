@@ -171,6 +171,12 @@ namespace GameName1
                         game.manaBoxes[manaBoxSwapIndex, manaType]++;
                     }
                     break;
+                case NetworkMessageType.RefreshMana:
+                    {
+                        int manaBoxIndex = msg.ReadInt32();
+                        game.RefreshMana(manaBoxIndex);
+                    }
+                    break;
             }
         }
 
@@ -181,7 +187,8 @@ namespace GameName1
             TapEntity,
             CreateMana,
             RemoveMana,
-            SwapMana
+            SwapMana,
+            RefreshMana
         }
 
         internal void SendEntityCreateMessage(int entityNetworkID, string textureName, Microsoft.Xna.Framework.Vector2 entityNewPosition)
@@ -253,6 +260,17 @@ namespace GameName1
             message.Write(manaBoxIndex);
             message.Write(manaBoxSwapIndex);
             message.Write(manaType);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendRefreshMana(int manaBoxIndex)
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.RefreshMana);
+            message.Write(manaBoxIndex);
             if (peer.ConnectionsCount > 0)
             {
                 peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);

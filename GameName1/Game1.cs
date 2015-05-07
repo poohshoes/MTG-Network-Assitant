@@ -394,11 +394,13 @@ namespace GameName1
             consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX, 0), manaBoxIndex_TopAvaliable, manaBoxIndex_TopUsed, Color.White);
             consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX + manaBoxWidth, 0), manaBoxIndex_TopUsed, manaBoxIndex_TopAvaliable, Color.Gray);
             consumesMouseAction |= DoAddManaButtons(cardCreationPass, new Vector2(startX + (2 * manaBoxWidth), 0), manaBoxIndex_TopAvaliable);
+            consumesMouseAction |= DoRefreshManaButton(cardCreationPass, new Vector2(startX - manaTextureSize, 0), manaBoxIndex_TopAvaliable);
             
             int startY = graphics.PreferredBackBufferHeight - (manaTextureSize * manaBoxHeightInMana);
             consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX, startY), manaBoxIndex_BottomAvaliable, manaBoxIndex_BottomUsed, Color.White);
             consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX + manaBoxWidth, startY), manaBoxIndex_BottomUsed, manaBoxIndex_BottomAvaliable, Color.Gray);
             consumesMouseAction |= DoAddManaButtons(cardCreationPass, new Vector2(startX + (2 * manaBoxWidth), startY), manaBoxIndex_BottomAvaliable);
+            consumesMouseAction |= DoRefreshManaButton(cardCreationPass, new Vector2(startX - manaTextureSize, startY), manaBoxIndex_BottomAvaliable);
 
             return consumesMouseAction;
         }
@@ -456,11 +458,11 @@ namespace GameName1
             bool consumesMouseAction = false;
             for (int manaType = 0; manaType < manaTextures.Count; manaType++)
             {
-                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
                 Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
                 switch (cardCreationPass)
                 {
                     case CardCreationPass.Draw:
+                        Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
                         spriteBatch.Draw(manaTexture, textureRectangle, Color.White);
                         break;
                     case CardCreationPass.Update:
@@ -475,6 +477,37 @@ namespace GameName1
                 topLeft.Y += manaTextureSize;
             }
             return consumesMouseAction;
+        }
+
+        private bool DoRefreshManaButton(CardCreationPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
+        {
+            bool consumesMouseAction = false;
+            Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
+            switch (cardCreationPass)
+            {
+                case CardCreationPass.Draw:
+                    Texture2D refreshManaTexture = Content.Load<Texture2D>("Mana\\refresh.png");
+                    spriteBatch.Draw(refreshManaTexture, textureRectangle, Color.White);
+                    break;
+                case CardCreationPass.Update:
+                    if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
+                    {
+                        RefreshMana(manaBoxIndex);
+                        consumesMouseAction = true;
+                        network.SendRefreshMana(manaBoxIndex);
+                    }
+                    break;
+            }
+            return consumesMouseAction;
+        }
+
+        public void RefreshMana(int manaBoxIndex)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                manaBoxes[manaBoxIndex, i] += manaBoxes[manaBoxIndex + 1, i];
+                manaBoxes[manaBoxIndex + 1, i] = 0;
+            }
         }
 
         private void SaveStarredCards()
