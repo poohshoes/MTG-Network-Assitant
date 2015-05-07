@@ -58,5 +58,22 @@ namespace GameName1
 
             return result;
         }
+
+        internal void DoText(CardCreationPass cardCreationPass, SpriteBatch spriteBatch, string text)
+        {
+            switch (cardCreationPass)
+            {
+                case CardCreationPass.Draw:
+                    {
+                        spriteBatch.DrawString(Font, text, Position, Color.Black);
+                        Position.X += Font.MeasureString(text).X;
+                    }
+                    break;
+                case CardCreationPass.Update:
+                    {
+                    }
+                    break;
+            }
+        }
     }
 }

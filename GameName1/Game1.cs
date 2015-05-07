@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using System.IO;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 #endregion
 
 namespace GameName1
@@ -45,6 +46,10 @@ namespace GameName1
 
         SpriteFont font;
         int NetworkIDCounter;
+
+        string searchText = "";
+        WebClient client = new WebClient();
+        KeyboardState lastKeyboardState;
 
         int topDepth = 0;
         public int GetNextHeighestDepth()
@@ -184,7 +189,60 @@ namespace GameName1
                     }
                 }
             }
-            
+
+            KeyboardState keyboardState = Keyboard.GetState();
+            if (lastKeyboardState != null)
+            {
+                for (int i = 65; i <= 90; i++)
+                {
+                    if (keyboardState.IsKeyDown((Keys)i) && lastKeyboardState.IsKeyUp((Keys)i))
+                    {
+                        int key = i;
+                        if (!keyboardState.IsKeyDown(Keys.LeftShift) && !keyboardState.IsKeyDown(Keys.RightShift))
+                        {
+                            key += 32;
+                        }
+                        searchText += (char)key;
+                    }
+                }
+                if (keyboardState.IsKeyDown(Keys.Space) && lastKeyboardState.IsKeyUp(Keys.Space))
+                {
+                    searchText += " ";
+                }
+                if (keyboardState.IsKeyDown(Keys.OemComma) && lastKeyboardState.IsKeyUp(Keys.OemComma))
+                {
+                    searchText += ",";
+                }
+                if (keyboardState.IsKeyDown(Keys.OemMinus) && lastKeyboardState.IsKeyUp(Keys.OemMinus))
+                {
+                    searchText += "-";
+                }
+                if (keyboardState.IsKeyDown(Keys.OemQuotes) && lastKeyboardState.IsKeyUp(Keys.OemQuotes))
+                {
+                    searchText += "'";
+                }
+                if (searchText.Length > 0 && keyboardState.IsKeyDown(Keys.Back) && lastKeyboardState.IsKeyUp(Keys.Back))
+                {
+                    searchText = searchText.Substring(0, searchText.Length - 1);
+                }
+                if (keyboardState.IsKeyDown(Keys.Enter) && lastKeyboardState.IsKeyUp(Keys.Enter))
+                {
+                    string source = client.DownloadString("https://deckbox.org/mtg/" + searchText);
+                    string match = "id='card_image' src='";
+                    int cardID = source.IndexOf(match) + match.Length;
+                    int cardIDEnd = source.IndexOf("'", cardID);
+                    string downloadLink = "https://deckbox.org" + source.Substring(cardID, cardIDEnd - cardID);
+                    string outputFileName = searchText + ".jpg";
+                    client.DownloadFile(downloadLink, "Data\\" + outputFileName);
+                    CardData data = new CardData();
+                    data.TexturePath = Path.GetFileName(outputFileName);
+                    data.Name = Path.GetFileNameWithoutExtension(outputFileName);
+                    cardData.Add(data);
+                    searchText = "";
+                }
+            }
+            lastKeyboardState = keyboardState;
+
             base.Update(gameTime);
         }
 
@@ -253,6 +311,7 @@ namespace GameName1
             {
                 shownLetter = '*';
             }
+            panel.DoText(cardCreationPass, spriteBatch, searchText);
             panel.Row();
 
             if (input.RightMouseEngaged())
