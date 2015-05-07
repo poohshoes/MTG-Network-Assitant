@@ -138,6 +138,7 @@ namespace GameName1
 
             bool mouseInteracted = false;
             mouseInteracted = CardCreation(CardCreationPass.Update);
+            mouseInteracted = ManaBoxes(CardCreationPass.Update);
 
             lastDragMessageSentSeconds += gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -297,6 +298,7 @@ namespace GameName1
             }
 
             CardCreation(CardCreationPass.Draw);
+            ManaBoxes(CardCreationPass.Draw);
 
             spriteBatch.End();
 
@@ -368,6 +370,108 @@ namespace GameName1
                     }
                     panel.Row();
                 }
+            }
+            return consumesMouseAction;
+        }
+
+        ManaBox topMana = new ManaBox();
+        ManaBox bottomMana = new ManaBox();
+        class ManaBox
+        {
+            public int[] AvaliableMana = new int[5];
+            public int[] UsedMana = new int[5];
+        }
+        int manaTextureSize = 30;
+        int manaBoxWidthInMana = 5;
+        int manaBoxHeightInMana = 5;
+        List<string> manaTextures = new List<string>() { "Mana\\greenMana.png", "Mana\\redMana.png", "Mana\\blueMana.png", "Mana\\blackMana.png", "Mana\\whiteMana.png" };
+
+        private bool ManaBoxes(CardCreationPass cardCreationPass)
+        {
+            bool consumesMouseAction = false;
+            int manaBoxWidth = manaBoxWidthInMana * manaTextureSize;
+            int totalManaBoxWidth = 2 * manaBoxWidth + manaTextureSize;
+
+            int startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth;
+            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX, 0), topMana.AvaliableMana, topMana.UsedMana, Color.White);
+            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX + manaBoxWidth, 0), topMana.UsedMana, topMana.AvaliableMana, Color.Gray);
+            consumesMouseAction |= DoAddManaButtons(cardCreationPass, new Vector2(startX + (2 * manaBoxWidth), 0), topMana.AvaliableMana);
+            
+            int startY = graphics.PreferredBackBufferHeight - (manaTextureSize * manaBoxHeightInMana);
+            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX, startY), bottomMana.AvaliableMana, bottomMana.UsedMana, Color.White);
+            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX + manaBoxWidth, startY), bottomMana.UsedMana, bottomMana.AvaliableMana, Color.Gray);
+            consumesMouseAction |= DoAddManaButtons(cardCreationPass, new Vector2(startX + (2 * manaBoxWidth), startY), bottomMana.AvaliableMana);
+
+            return consumesMouseAction;
+        }
+
+        private bool DoManaBox(CardCreationPass cardCreationPass, Vector2 topLeft, int[] manaInfo, int[] manaInfoSwap, Color color)
+        {
+            bool consumesMouseAction = false;
+            Vector2 currentPosition = new Vector2(topLeft.X, topLeft.Y);
+            int column = 0;
+            for (int manaType = 0; manaType < 5; manaType++)
+            {
+                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
+                for (int mana = 0; mana < manaInfo[manaType]; mana++)
+                {
+                    Rectangle textureRectangle = new Rectangle((int)currentPosition.X, (int)currentPosition.Y, (int)manaTextureSize, (int)manaTextureSize);
+                    switch (cardCreationPass)
+                    {
+                        case CardCreationPass.Draw:
+                            spriteBatch.Draw(manaTexture, textureRectangle, color);
+                            break;
+                        case CardCreationPass.Update:
+                            if(Game1.PointInRectangle(input.MousePosition, textureRectangle))
+                            {
+                                if (input.LeftMouseDisengaged())
+                                {
+                                    manaInfo[manaType]--;
+                                    manaInfoSwap[manaType]++;
+                                    consumesMouseAction = true;
+                                }
+                                else if (input.RightMouseDisengaged())
+                                {
+                                    manaInfo[manaType]--;
+                                    consumesMouseAction = true;
+                                }
+                            }
+                            break;
+                    }
+                    currentPosition.X += manaTextureSize;
+                    column++;
+                    if (column >= manaBoxWidthInMana)
+                    {
+                        column = 0;
+                        currentPosition.X = topLeft.X;
+                        currentPosition.Y += manaTextureSize;
+                    }
+                }
+            }
+            return consumesMouseAction;
+        }
+
+        private bool DoAddManaButtons(CardCreationPass cardCreationPass, Vector2 topLeft, int[] activeMana)
+        {
+            bool consumesMouseAction = false;
+            for (int manaType = 0; manaType < manaTextures.Count; manaType++)
+            {
+                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
+                Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
+                switch (cardCreationPass)
+                {
+                    case CardCreationPass.Draw:
+                        spriteBatch.Draw(manaTexture, textureRectangle, Color.White);
+                        break;
+                    case CardCreationPass.Update:
+                        if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
+                        {
+                            activeMana[manaType]++;
+                            consumesMouseAction = true;
+                        }
+                        break;
+                }
+                topLeft.Y += manaTextureSize;
             }
             return consumesMouseAction;
         }
