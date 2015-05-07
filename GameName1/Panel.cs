@@ -59,13 +59,13 @@ namespace GameName1
             return result;
         }
 
-        internal void DoText(CardCreationPass cardCreationPass, SpriteBatch spriteBatch, string text)
+        internal void DoText(CardCreationPass cardCreationPass, SpriteBatch spriteBatch, string text, Color textColor)
         {
             switch (cardCreationPass)
             {
                 case CardCreationPass.Draw:
                     {
-                        spriteBatch.DrawString(Font, text, Position, Color.Black);
+                        spriteBatch.DrawString(Font, text, Position, textColor);
                         Position.X += Font.MeasureString(text).X;
                     }
                     break;

@@ -48,6 +48,7 @@ namespace GameName1
         int NetworkIDCounter;
 
         string searchText = "";
+        Color searchTextColor = Color.Black;
         WebClient client = new WebClient();
         KeyboardState lastKeyboardState;
 
@@ -203,6 +204,7 @@ namespace GameName1
                             key += 32;
                         }
                         searchText += (char)key;
+                        searchTextColor = Color.Black;
                     }
                 }
                 if (keyboardState.IsKeyDown(Keys.Space) && lastKeyboardState.IsKeyUp(Keys.Space))
@@ -229,16 +231,24 @@ namespace GameName1
                 {
                     string source = client.DownloadString("https://deckbox.org/mtg/" + searchText);
                     string match = "id='card_image' src='";
-                    int cardID = source.IndexOf(match) + match.Length;
-                    int cardIDEnd = source.IndexOf("'", cardID);
-                    string downloadLink = "https://deckbox.org" + source.Substring(cardID, cardIDEnd - cardID);
-                    string outputFileName = searchText + ".jpg";
-                    client.DownloadFile(downloadLink, "Data\\" + outputFileName);
-                    CardData data = new CardData();
-                    data.TexturePath = Path.GetFileName(outputFileName);
-                    data.Name = Path.GetFileNameWithoutExtension(outputFileName);
-                    cardData.Add(data);
-                    searchText = "";
+                    int matchIndex = source.IndexOf(match);
+                    if (matchIndex == -1)
+                    {
+                        searchTextColor = Color.Red;
+                    }
+                    else
+                    {
+                        int cardID = matchIndex + match.Length;
+                        int cardIDEnd = source.IndexOf("'", cardID);
+                        string downloadLink = "https://deckbox.org" + source.Substring(cardID, cardIDEnd - cardID);
+                        string outputFileName = searchText + ".jpg";
+                        client.DownloadFile(downloadLink, "Data\\" + outputFileName);
+                        CardData data = new CardData();
+                        data.TexturePath = Path.GetFileName(outputFileName);
+                        data.Name = Path.GetFileNameWithoutExtension(outputFileName);
+                        cardData.Add(data);
+                        searchText = "";
+                    }
                 }
             }
             lastKeyboardState = keyboardState;
@@ -311,7 +321,7 @@ namespace GameName1
             {
                 shownLetter = '*';
             }
-            panel.DoText(cardCreationPass, spriteBatch, searchText);
+            panel.DoText(cardCreationPass, spriteBatch, searchText, searchTextColor);
             panel.Row();
 
             if (input.RightMouseEngaged())
@@ -365,6 +375,8 @@ namespace GameName1
 
         public Entity SpawnCard(string texturePath, int networkID)
         {
+            //if(File.Exists(
+
             Entity card = new Entity();
             card.NetworkID = networkID;
             card.Position = input.MousePosition;
