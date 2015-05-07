@@ -161,7 +161,41 @@ namespace GameName1
                     {
                         foreach (Entity entity in Entities)
                         {
-                            if (PointInRectangle(input.MousePosition, entity.GetBounds()))
+                            bool doDrag = false;
+                            switch (entity.Type)
+                            {
+                                case EntityType.Card:
+                                    doDrag = PointInRectangle(input.MousePosition, entity.GetBounds());
+                                    break;
+                                case EntityType.Counter:
+                                    Counter counter = (Counter)entity.TypeSpecificClass;
+                                    doDrag = PointInRectangle(input.MousePosition, 
+                                        new Rectangle((int)entity.Position.X, (int)entity.Position.Y + Counter.Buttonheight, 
+                                            Counter.TextAreaHeight, Counter.TextAreaHeight));
+                                    //Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
+                                    //int counterChange = 0;
+                                    //if (PointInTriangle(input.MousePosition, 
+                                    //        entity.Position + new Vector2(0, Counter.Buttonheight),
+                                    //        entity.Position + new Vector2(Counter.TextAreaWidth/2, 0),
+                                    //        entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
+                                    //{
+                                    //    counterChange = 1;
+                                    //}
+                                    //else if (PointInTriangle(input.MousePosition,
+                                    //        startOfBottomTriangle + new Vector2(0, 0),
+                                    //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
+                                    //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
+                                    //{
+                                    //    counterChange = -1;
+                                    //}
+                                    //if (counterChange != 0)
+                                    //{
+                                    //    counter.Value += counterChange;
+                                    //    network.SendCounterChangeMessage(entity.NetworkID, counter.Value);
+                                    //}
+                                    break;
+                            }
+                            if (doDrag)
                             {
                                 dragTarget = entity;
                                 dragTarget.Depth = GetNextHeighestDepth();
@@ -185,8 +219,14 @@ namespace GameName1
                     {
                         if (PointInRectangle(input.MousePosition, entity.GetBounds()))
                         {
-                            entity.Tapped = !entity.Tapped;
-                            network.SendEntityTappedMessage(entity.NetworkID);
+                            switch(entity.Type)
+                            {
+                                case EntityType.Card:
+                                    Card card = (Card)entity.TypeSpecificClass;
+                                    card.Tapped = !card.Tapped;
+                                    network.SendEntityTappedMessage(entity.NetworkID);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -245,6 +285,24 @@ namespace GameName1
             base.Update(gameTime);
         }
 
+        public static bool PointInTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2)
+        {
+            var s = p0.Y * p2.X - p0.X * p2.Y + (p2.Y - p0.Y) * p.X + (p0.X - p2.X) * p.Y;
+            var t = p0.X * p1.Y - p0.Y * p1.X + (p0.Y - p1.Y) * p.X + (p1.X - p0.X) * p.Y;
+
+            if ((s < 0) != (t < 0))
+                return false;
+
+            var A = -p1.Y * p2.X + p0.Y * (p2.X - p1.X) + p0.X * (p1.Y - p2.Y) + p1.X * p2.Y;
+            if (A < 0.0)
+            {
+                s = -s;
+                t = -t;
+                A = -A;
+            }
+            return s > 0 && t > 0 && (s + t) < A;
+        }
+
         public bool TryGetFile(string cardName)
         {
             string source = client.DownloadString("https://deckbox.org/mtg/" + cardName);
@@ -291,10 +349,44 @@ namespace GameName1
             Entities.Sort(new EntityComparer());
             foreach (Entity entity in Entities)
             {
-                float rotation = 0;
-                if (entity.Tapped)
-                    rotation = (float)Math.PI / 2f;
-                spriteBatch.Draw(entity.Texture, entity.Position, null, Color.White, rotation, entity.GetHalf(), 1f, SpriteEffects.None, 0);
+                switch(entity.Type)
+                {
+                    case EntityType.Card:
+                        Card card = (Card)entity.TypeSpecificClass;
+                        float rotation = 0;
+                        if (card.Tapped)
+                            rotation = (float)Math.PI / 2f;
+                        spriteBatch.Draw(card.Texture, entity.Position, null, Color.White, rotation, card.GetHalf(), 1f, SpriteEffects.None, 0);
+                        break;
+                    case EntityType.Counter:
+                        Vector2 topArrowPoint = entity.Position + new Vector2(Counter.TextAreaWidth / 2f, 0);
+                        Vector2 bottomArrowPoint = topArrowPoint + new Vector2(0, 2 * Counter.Buttonheight + Counter.TextAreaHeight);
+                        float top = entity.Position.Y + Counter.Buttonheight;
+                        float bottom = top + Counter.TextAreaHeight;
+                        float left = entity.Position.X;
+                        float right = left + Counter.TextAreaWidth;
+
+                        // Text area box
+                        DrawLine(3, Color.SkyBlue, new Vector2(left, top), new Vector2(right, top));
+                        DrawLine(3, Color.SkyBlue, new Vector2(right, top), new Vector2(right, bottom));
+                        DrawLine(3, Color.SkyBlue, new Vector2(right, bottom), new Vector2(left, bottom));
+                        DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), new Vector2(left, top));
+
+                        // Top arrow
+                        DrawLine(3, Color.SkyBlue, new Vector2(left, top), topArrowPoint);
+                        DrawLine(3, Color.SkyBlue, topArrowPoint, new Vector2(right, top));
+
+                        // Bottom arrow
+                        DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), bottomArrowPoint);
+                        DrawLine(3, Color.SkyBlue, bottomArrowPoint, new Vector2(right, bottom));
+
+                        Counter counter = (Counter)entity.TypeSpecificClass;
+                        string text = counter.Value.ToString();
+                        SpriteFont fontToUse = font;
+                        Vector2 centerOffset = (new Vector2(Counter.TextAreaWidth, Counter.TextAreaHeight) - fontToUse.MeasureString(text)) / 2f;
+                        spriteBatch.DrawString(fontToUse, text, new Vector2(left, top) + centerOffset, Color.Blue);
+                        break;
+                }   
             }
 
             CardCreation(CardCreationPass.Draw);
@@ -334,6 +426,10 @@ namespace GameName1
             if (panel.DoButton(cardCreationPass, input, spriteBatch, "*"))
             {
                 shownLetter = '*';
+            }
+            if (panel.DoButton(cardCreationPass, input, spriteBatch, "C"))
+            {
+                SpawnCounterAndSendNetworkMessage();
             }
             panel.DoText(cardCreationPass, spriteBatch, searchText, searchTextColor);
             panel.Row();
@@ -515,40 +611,68 @@ namespace GameName1
             List<string> starredCardNames = cardData.Where(x => x.Starred).Select(x => x.Name).ToList();
             File.WriteAllLines("starred.txt", starredCardNames);
         }
-        
+
         private void SpawnCardAndSendNetworkMessage(string cardName, string texturePath)
         {
             Entity card = SpawnCard(texturePath, NetworkIDCounter);
-            network.SendEntityCreateMessage(NetworkIDCounter, texturePath, card.Position);
+            network.SendCardCreateMessage(NetworkIDCounter, texturePath, card.Position);
             NetworkIDCounter++;
         }
 
         public Entity SpawnCard(string texturePath, int networkID)
         {
-            if(!File.Exists(Path.Combine(Content.RootDirectory, texturePath)))
+            if (!File.Exists(Path.Combine(Content.RootDirectory, texturePath)))
             {
                 string cardName = Path.GetFileNameWithoutExtension(texturePath);
-                if(!TryGetFile(cardName))
+                if (!TryGetFile(cardName))
                 {
                     throw new Exception("Couldn't aquire card " + texturePath);
                 }
             }
 
-            Entity card = new Entity();
-            card.NetworkID = networkID;
-            card.Position = input.MousePosition;
+            Entity entity = new Entity();
+            entity.Type = EntityType.Card;
+            entity.NetworkID = networkID;
+            entity.Position = input.MousePosition;
+            Card card = new Card();
+            entity.TypeSpecificClass = card;
             card.Texture = Content.Load<Texture2D>(texturePath);
-            Entities.Add(card);
-            card.Depth = GetNextHeighestDepth();
-            return card;
+            Entities.Add(entity);
+            entity.Depth = GetNextHeighestDepth();
+            return entity;
         }
-        
-        //internal void DrawLine(float width, Color color, Vector2 point1, Vector2 point2)
-        //{
-        //    float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
-        //    float length = Vector2.Distance(point1, point2);
 
-        //    spriteBatch.Draw(pixelTexture, point1, null, color, angle, Vector2.Zero, new Vector2(length, width), SpriteEffects.None, 0f);
-        //}
+        private void SpawnCounterAndSendNetworkMessage()
+        {
+            Entity entity = SpawnCounter(NetworkIDCounter);
+            network.SendCounterCreateMessage(NetworkIDCounter, entity.Position);
+            NetworkIDCounter++;
+        }
+
+        public Entity SpawnCounter(int networkID)
+        {
+            Entity entity = new Entity();
+            entity.Type = EntityType.Counter;
+            entity.NetworkID = networkID;
+            entity.Position = input.MousePosition;
+            Counter counter = new Counter();
+            entity.TypeSpecificClass = counter;
+            Entities.Add(entity);
+            entity.Depth = GetNextHeighestDepth();
+            return entity;
+        }
+
+        internal void DrawLine(float width, Color color, Vector2 point1, Vector2 point2)
+        {
+            float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
+            float length = Vector2.Distance(point1, point2);
+
+            Texture2D pixelTexture = new Texture2D(GraphicsDevice, 1, 1);
+            uint[] colorData = new uint[1];
+            colorData[0] = 0xFFFFFFFF;
+            pixelTexture.SetData<uint>(colorData);
+
+            spriteBatch.Draw(pixelTexture, point1, null, color, angle, Vector2.Zero, new Vector2(length, width), SpriteEffects.None, 0f);
+        }
     }
 }

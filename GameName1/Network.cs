@@ -112,7 +112,7 @@ namespace GameName1
 
             switch (type)
             {
-                case NetworkMessageType.CreateEntity:
+                case NetworkMessageType.CreateCard:
                     {
                         int id = msg.ReadInt32();
                         float newX = msg.ReadFloat();
@@ -123,6 +123,18 @@ namespace GameName1
                         card.Position.Y = newY;
                         card.Depth = game.GetNextHeighestDepth();
                         game.Entities.Add(card);
+                    }
+                    break;
+                case NetworkMessageType.CreateCounter:
+                    {
+                        int id = msg.ReadInt32();
+                        float newX = msg.ReadFloat();
+                        float newY = msg.ReadFloat();
+                        Entity counter = game.SpawnCounter(id);
+                        counter.Position.X = newX;
+                        counter.Position.Y = newY;
+                        counter.Depth = game.GetNextHeighestDepth();
+                        game.Entities.Add(counter);
                     }
                     break;
                 case NetworkMessageType.MoveEntity:
@@ -144,7 +156,8 @@ namespace GameName1
                         var entity = game.Entities.FirstOrDefault(x => x.NetworkID == id);
                         if (entity != null)
                         {
-                            entity.Tapped = !entity.Tapped;
+                            Card card = (Card)entity.TypeSpecificClass;
+                            card.Tapped = !card.Tapped;
                         }
                     }
                     break;
@@ -177,28 +190,54 @@ namespace GameName1
                         game.RefreshMana(manaBoxIndex);
                     }
                     break;
+                case NetworkMessageType.CounterChanged:
+                    {
+                        int id = msg.ReadInt32();
+                        var entity = game.Entities.FirstOrDefault(x => x.NetworkID == id);
+                        if (entity != null)
+                        {
+                            Counter counter = (Counter)entity.TypeSpecificClass;
+                            counter.Value = msg.ReadInt32();
+                        }
+                    }
+                    break;
             }
         }
 
         enum NetworkMessageType
         {
-            CreateEntity,
+            CreateCard,
+            CreateCounter,
             MoveEntity,
             TapEntity,
             CreateMana,
             RemoveMana,
             SwapMana,
-            RefreshMana
+            RefreshMana,
+            CounterChanged
         }
 
-        internal void SendEntityCreateMessage(int entityNetworkID, string textureName, Microsoft.Xna.Framework.Vector2 entityNewPosition)
+        internal void SendCardCreateMessage(int entityNetworkID, string textureName, Microsoft.Xna.Framework.Vector2 entityNewPosition)
         {
             NetOutgoingMessage message = peer.CreateMessage();
-            message.Write((byte)NetworkMessageType.CreateEntity);
+            message.Write((byte)NetworkMessageType.CreateCard);
             message.Write(entityNetworkID);
             message.Write(entityNewPosition.X);
             message.Write(entityNewPosition.Y);
             message.Write(textureName);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendCounterCreateMessage(int entityNetworkID, Microsoft.Xna.Framework.Vector2 entityNewPosition)
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.CreateCounter);
+            message.Write(entityNetworkID);
+            message.Write(entityNewPosition.X);
+            message.Write(entityNewPosition.Y);
             if (peer.ConnectionsCount > 0)
             {
                 peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
@@ -271,6 +310,18 @@ namespace GameName1
             NetOutgoingMessage message = peer.CreateMessage();
             message.Write((byte)NetworkMessageType.RefreshMana);
             message.Write(manaBoxIndex);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendCounterChangeMessage(int entityNetworkID, int newValue)
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.CounterChanged);
+            message.Write(entityNetworkID);
+            message.Write(newValue);
             if (peer.ConnectionsCount > 0)
             {
                 peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
