@@ -26,9 +26,6 @@ namespace GameName1
         Draw, Update
     }
 
-    /// <summary>
-    /// This is the main type for your game
-    /// </summary>
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
@@ -89,12 +86,12 @@ namespace GameName1
             font = Content.Load<SpriteFont>("SegoeUIMono12");
 
             cardData = new List<CardData>();
-            List<string> cardDataInfo = new List<string> (File.ReadAllLines("Data\\listing.txt"));
-            for (int i = 0; i < cardDataInfo.Count; i += 2)
+
+            foreach (string cardPath in Directory.GetFiles("Data", "*.jpg"))
             {
                 CardData data = new CardData();
-                data.Name = cardDataInfo[i];
-                data.TexturePath = cardDataInfo[i + 1];
+                data.TexturePath = Path.GetFileName(cardPath);
+                data.Name = Path.GetFileNameWithoutExtension(cardPath);
                 cardData.Add(data);
             }
 
