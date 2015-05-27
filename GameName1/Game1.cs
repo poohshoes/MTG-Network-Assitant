@@ -22,7 +22,7 @@ namespace GameName1
         public bool Starred = false;
     }
 
-    public enum CardCreationPass
+    public enum IMGUIPass
     {
         Draw, Update
     }
@@ -50,6 +50,7 @@ namespace GameName1
         string searchText = "";
         Color searchTextColor = Color.Black;
         WebClient client = new WebClient();
+        KeyboardState keyboardState;
         KeyboardState lastKeyboardState;
 
         int topDepth = 0;
@@ -111,13 +112,15 @@ namespace GameName1
                 }
             }
         }
-
+        
         protected override void Update(GameTime gameTime)
         {
             input.Update();
 
             if (Debugger.IsAttached && input.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
+
+            keyboardState = Keyboard.GetState();
 
             if (network == null)
             {
@@ -136,13 +139,180 @@ namespace GameName1
             }
             network.Update(gameTime, this);
 
-            bool mouseInteracted = false;
-            mouseInteracted = CardCreation(CardCreationPass.Update);
-            mouseInteracted = ManaBoxes(CardCreationPass.Update);
-
             lastDragMessageSentSeconds += gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (!mouseInteracted)
+            UpdateAndDraw(gameTime, IMGUIPass.Update);
+
+            lastKeyboardState = keyboardState;
+
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.DarkGray);
+
+            spriteBatch.Begin();
+            
+            UpdateAndDraw(gameTime, IMGUIPass.Draw);
+
+            spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+
+        // For card selection.
+        char shownLetter = (char)0;
+
+        public int[,] manaBoxes = new int[4, 5];
+        List<string> manaTextures = new List<string>() { "Mana\\greenMana.png", "Mana\\redMana.png", "Mana\\blueMana.png", "Mana\\blackMana.png", "Mana\\whiteMana.png" };
+        int manaTextureSize = 30;
+        int manaBoxWidthInMana = 5;
+
+        public void UpdateAndDraw(GameTime gameTime, IMGUIPass pass)
+        {
+            // CARD CREATION
+            bool mouseActionConsumed = false;
+            Panel panel = new Panel(new Vector2(5, 0));
+            panel.Font = font;
+            int start = (int)'A';
+            int end = (int)'Z';
+            for (int i = start; i <= end; i++)
+            {
+                if (panel.DoButton(pass, input, spriteBatch, ((char)i).ToString()))
+                {
+                    shownLetter = (char)i;
+                    mouseActionConsumed = true;
+                }
+            }
+            if (panel.DoButton(pass, input, spriteBatch, "*"))
+            {
+                shownLetter = '*';
+                mouseActionConsumed = true;
+            }
+            if (panel.DoButton(pass, input, spriteBatch, "C"))
+            {
+                SpawnCounterAndSendNetworkMessage();
+                mouseActionConsumed = true;
+            }
+
+            // TYPED CARD RETREIVAL
+            if (pass == IMGUIPass.Update)
+            {
+                if (lastKeyboardState != null)
+                {
+                    for (int i = 65; i <= 90; i++)
+                    {
+                        if (keyboardState.IsKeyDown((Keys)i) && lastKeyboardState.IsKeyUp((Keys)i))
+                        {
+                            int key = i;
+                            if (!keyboardState.IsKeyDown(Keys.LeftShift) && !keyboardState.IsKeyDown(Keys.RightShift))
+                            {
+                                key += 32;
+                            }
+                            searchText += (char)key;
+                            searchTextColor = Color.Black;
+                        }
+                    }
+                    if (keyboardState.IsKeyDown(Keys.Space) && lastKeyboardState.IsKeyUp(Keys.Space))
+                    {
+                        searchText += " ";
+                    }
+                    if (keyboardState.IsKeyDown(Keys.OemComma) && lastKeyboardState.IsKeyUp(Keys.OemComma))
+                    {
+                        searchText += ",";
+                    }
+                    if (keyboardState.IsKeyDown(Keys.OemMinus) && lastKeyboardState.IsKeyUp(Keys.OemMinus))
+                    {
+                        searchText += "-";
+                    }
+                    if (keyboardState.IsKeyDown(Keys.OemQuotes) && lastKeyboardState.IsKeyUp(Keys.OemQuotes))
+                    {
+                        searchText += "'";
+                    }
+                    if (searchText.Length > 0 && keyboardState.IsKeyDown(Keys.Back) && lastKeyboardState.IsKeyUp(Keys.Back))
+                    {
+                        searchText = searchText.Substring(0, searchText.Length - 1);
+                    }
+                    if (keyboardState.IsKeyDown(Keys.Enter) && lastKeyboardState.IsKeyUp(Keys.Enter))
+                    {
+                        if (!TryGetFile(searchText))
+                        {
+                            searchTextColor = Color.Red;
+                        }
+                        else
+                        {
+                            searchText = "";
+                        }
+                    }
+                }
+            }
+            panel.DoText(pass, spriteBatch, searchText, searchTextColor);
+            panel.Row();
+
+            if (input.RightMouseEngaged() && shownLetter != (char)0)
+            {
+                shownLetter = (char)0;
+                mouseActionConsumed = true;
+            }
+
+            if (shownLetter != (char)0)
+            {
+                List<CardData> cardsToShow;
+                if (shownLetter == '*')
+                    cardsToShow = cardData.Where(x => x.Starred).ToList();
+                else
+                    cardsToShow = cardData.Where(x => x.Name.ToUpper()[0] == shownLetter).ToList();
+
+                foreach (CardData card in cardsToShow)
+                {
+                    Color starColor = Color.Black;
+                    if (!card.Starred)
+                        starColor = Color.White;
+                    if (panel.DoButton(pass, input, spriteBatch, "*", starColor))
+                    {
+                        card.Starred = !card.Starred;
+                        SaveStarredCards();
+                    }
+                    if (panel.DoButton(pass, input, spriteBatch, card.Name))
+                    {
+                        SpawnCardAndSendNetworkMessage(card.Name, card.TexturePath);
+                        shownLetter = (char)0;
+                        mouseActionConsumed = true;
+                    }
+                    panel.Row();
+                }
+            }
+
+            // MANA BOXES
+            if (!mouseActionConsumed || pass == IMGUIPass.Draw)
+            {
+                int manaBoxIndex_TopAvaliable = 0;
+                int manaBoxIndex_TopUsed = 1;
+                int manaBoxIndex_BottomAvaliable = 2;
+                int manaBoxIndex_BottomUsed = 3;
+
+                int manaBoxHeightInMana = 5;
+                
+                int manaBoxWidth = manaBoxWidthInMana * manaTextureSize;
+                int totalManaBoxWidth = 2 * manaBoxWidth + manaTextureSize;
+
+                int startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth;
+                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX, 0), manaBoxIndex_TopAvaliable, manaBoxIndex_TopUsed, Color.White);
+                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX + manaBoxWidth, 0), manaBoxIndex_TopUsed, manaBoxIndex_TopAvaliable, Color.Gray);
+                mouseActionConsumed |= DoAddManaButtons(pass, new Vector2(startX + (2 * manaBoxWidth), 0), manaBoxIndex_TopAvaliable);
+                mouseActionConsumed |= DoRefreshManaButton(pass, new Vector2(startX - manaTextureSize, 0), manaBoxIndex_TopAvaliable);
+
+                int startY = graphics.PreferredBackBufferHeight - (manaTextureSize * manaBoxHeightInMana);
+                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX, startY), manaBoxIndex_BottomAvaliable, manaBoxIndex_BottomUsed, Color.White);
+                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX + manaBoxWidth, startY), manaBoxIndex_BottomUsed, manaBoxIndex_BottomAvaliable, Color.Gray);
+                mouseActionConsumed |= DoAddManaButtons(pass, new Vector2(startX + (2 * manaBoxWidth), startY), manaBoxIndex_BottomAvaliable);
+                mouseActionConsumed |= DoRefreshManaButton(pass, new Vector2(startX - manaTextureSize, startY), manaBoxIndex_BottomAvaliable);
+            }
+
+            // CARDS AND COUNTERS
+            // Move And Drop Drag Target
+            if (pass == IMGUIPass.Update && !mouseActionConsumed)
             {
                 if (dragTarget != null)
                 {
@@ -153,136 +323,233 @@ namespace GameName1
                         network.SendEntityMovedMessage(dragTarget.NetworkID, dragTarget.Position);
                         lastDragMessageSentSeconds = 0;
                     }
-                }
 
-                if (input.LeftMouseEngaged())
-                {
-                    if (dragTarget == null)
-                    {
-                        foreach (Entity entity in Entities)
-                        {
-                            bool doDrag = false;
-                            switch (entity.Type)
-                            {
-                                case EntityType.Card:
-                                    doDrag = PointInRectangle(input.MousePosition, entity.GetBounds());
-                                    break;
-                                case EntityType.Counter:
-                                    Counter counter = (Counter)entity.TypeSpecificClass;
-                                    doDrag = PointInRectangle(input.MousePosition, 
-                                        new Rectangle((int)entity.Position.X, (int)entity.Position.Y + Counter.Buttonheight, 
-                                            Counter.TextAreaHeight, Counter.TextAreaHeight));
-                                    //Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
-                                    //int counterChange = 0;
-                                    //if (PointInTriangle(input.MousePosition, 
-                                    //        entity.Position + new Vector2(0, Counter.Buttonheight),
-                                    //        entity.Position + new Vector2(Counter.TextAreaWidth/2, 0),
-                                    //        entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
-                                    //{
-                                    //    counterChange = 1;
-                                    //}
-                                    //else if (PointInTriangle(input.MousePosition,
-                                    //        startOfBottomTriangle + new Vector2(0, 0),
-                                    //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
-                                    //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
-                                    //{
-                                    //    counterChange = -1;
-                                    //}
-                                    //if (counterChange != 0)
-                                    //{
-                                    //    counter.Value += counterChange;
-                                    //    network.SendCounterChangeMessage(entity.NetworkID, counter.Value);
-                                    //}
-                                    break;
-                            }
-                            if (doDrag)
-                            {
-                                dragTarget = entity;
-                                dragTarget.Depth = GetNextHeighestDepth();
-                            }
-                        }
-                    }
-                }
-                else if (input.LeftMouseDisengaged())
-                {
-                    if (dragTarget != null)
+                    if (input.LeftMouseDisengaged())
                     {
                         network.SendEntityMovedMessage(dragTarget.NetworkID, dragTarget.Position);
                         lastDragMessageSentSeconds = 0;
+                        dragTarget = null;
                     }
-                    dragTarget = null;
                 }
+            }
 
-                if (input.RightMouseDisengaged())
+            Entities.Sort(new EntityComparer());
+            foreach (Entity entity in Entities)
+            {
+                switch (entity.Type)
                 {
-                    foreach (Entity entity in Entities)
-                    {
-                        if (PointInRectangle(input.MousePosition, entity.GetBounds()))
+                    case EntityType.Card:
+                        if (pass == IMGUIPass.Draw)
                         {
-                            switch(entity.Type)
+                            Card card = (Card)entity.TypeSpecificClass;
+                            float rotation = 0;
+                            if (card.Tapped)
+                                rotation = (float)Math.PI / 2f;
+                            spriteBatch.Draw(card.Texture, entity.Position, null, Color.White, rotation, card.GetHalf(), 1f, SpriteEffects.None, 0);
+                        }
+                        else // Update Pass
+                        {
+                            // Start Drag
+                            if (input.LeftMouseEngaged() && dragTarget == null && !mouseActionConsumed)
                             {
-                                case EntityType.Card:
+                                if (PointInRectangle(input.MousePosition, entity.GetBounds()))
+                                {
+                                    dragTarget = entity;
+                                    dragTarget.Depth = GetNextHeighestDepth();
+                                    mouseActionConsumed = true;
+                                }
+                            }
+
+                            // Tap
+                            if (input.RightMouseDisengaged() && !mouseActionConsumed)
+                            {
+                                if (PointInRectangle(input.MousePosition, entity.GetBounds()))
+                                {
                                     Card card = (Card)entity.TypeSpecificClass;
                                     card.Tapped = !card.Tapped;
                                     network.SendEntityTappedMessage(entity.NetworkID);
-                                    break;
+                                    mouseActionConsumed = true;
+                                }
                             }
                         }
-                    }
-                }
-            }
-
-            KeyboardState keyboardState = Keyboard.GetState();
-            if (lastKeyboardState != null)
-            {
-                for (int i = 65; i <= 90; i++)
-                {
-                    if (keyboardState.IsKeyDown((Keys)i) && lastKeyboardState.IsKeyUp((Keys)i))
-                    {
-                        int key = i;
-                        if (!keyboardState.IsKeyDown(Keys.LeftShift) && !keyboardState.IsKeyDown(Keys.RightShift))
+                        break;
+                    case EntityType.Counter:
+                        if (pass == IMGUIPass.Draw)
                         {
-                            key += 32;
+                            Vector2 topArrowPoint = entity.Position + new Vector2(Counter.TextAreaWidth / 2f, 0);
+                            Vector2 bottomArrowPoint = topArrowPoint + new Vector2(0, 2 * Counter.Buttonheight + Counter.TextAreaHeight);
+                            float top = entity.Position.Y + Counter.Buttonheight;
+                            float bottom = top + Counter.TextAreaHeight;
+                            float left = entity.Position.X;
+                            float right = left + Counter.TextAreaWidth;
+
+                            // Text area box
+                            DrawLine(3, Color.SkyBlue, new Vector2(left, top), new Vector2(right, top));
+                            DrawLine(3, Color.SkyBlue, new Vector2(right, top), new Vector2(right, bottom));
+                            DrawLine(3, Color.SkyBlue, new Vector2(right, bottom), new Vector2(left, bottom));
+                            DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), new Vector2(left, top));
+
+                            // Top arrow
+                            DrawLine(3, Color.SkyBlue, new Vector2(left, top), topArrowPoint);
+                            DrawLine(3, Color.SkyBlue, topArrowPoint, new Vector2(right, top));
+
+                            // Bottom arrow
+                            DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), bottomArrowPoint);
+                            DrawLine(3, Color.SkyBlue, bottomArrowPoint, new Vector2(right, bottom));
+
+                            Counter counter = (Counter)entity.TypeSpecificClass;
+                            string text = counter.Value.ToString();
+                            SpriteFont fontToUse = font;
+                            Vector2 centerOffset = (new Vector2(Counter.TextAreaWidth, Counter.TextAreaHeight) - fontToUse.MeasureString(text)) / 2f;
+                            spriteBatch.DrawString(fontToUse, text, new Vector2(left, top) + centerOffset, Color.Blue);
                         }
-                        searchText += (char)key;
-                        searchTextColor = Color.Black;
-                    }
+                        else // Update Pass
+                        {
+                            if (input.LeftMouseEngaged() && dragTarget == null && !mouseActionConsumed)
+                            {
+                                Counter counter = (Counter)entity.TypeSpecificClass;
+                                if (PointInRectangle(input.MousePosition,
+                                    new Rectangle((int)entity.Position.X, (int)entity.Position.Y + Counter.Buttonheight,
+                                        Counter.TextAreaHeight, Counter.TextAreaHeight)))
+                                {
+                                    dragTarget = entity;
+                                    dragTarget.Depth = GetNextHeighestDepth();
+                                }
+
+                                Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
+                                int counterChange = 0;
+                                if (PointInTriangle(input.MousePosition,
+                                        entity.Position + new Vector2(0, Counter.Buttonheight),
+                                        entity.Position + new Vector2(Counter.TextAreaWidth / 2, 0),
+                                        entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
+                                {
+                                    counterChange = 1;
+                                }
+                                else if (PointInTriangle(input.MousePosition,
+                                        startOfBottomTriangle + new Vector2(0, 0),
+                                        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
+                                        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
+                                {
+                                    counterChange = -1;
+                                }
+                                if (counterChange != 0)
+                                {
+                                    counter.Value += counterChange;
+                                    network.SendCounterChangeMessage(entity.NetworkID, counter.Value);
+                                }
+                            }
+                        }
+                        break;
                 }
-                if (keyboardState.IsKeyDown(Keys.Space) && lastKeyboardState.IsKeyUp(Keys.Space))
+            }
+        }
+
+        // TODO(ian): inline this?
+        private bool DoManaBox(IMGUIPass cardCreationPass, Vector2 topLeft, int manaBoxIndex, int manaBoxSwapIndex, Color color)
+        {
+            bool consumesMouseAction = false;
+            Vector2 currentPosition = new Vector2(topLeft.X, topLeft.Y);
+            int column = 0;
+            for (int manaType = 0; manaType < 5; manaType++)
+            {
+                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
+                for (int mana = 0; mana < manaBoxes[manaBoxIndex, manaType]; mana++)
                 {
-                    searchText += " ";
-                }
-                if (keyboardState.IsKeyDown(Keys.OemComma) && lastKeyboardState.IsKeyUp(Keys.OemComma))
-                {
-                    searchText += ",";
-                }
-                if (keyboardState.IsKeyDown(Keys.OemMinus) && lastKeyboardState.IsKeyUp(Keys.OemMinus))
-                {
-                    searchText += "-";
-                }
-                if (keyboardState.IsKeyDown(Keys.OemQuotes) && lastKeyboardState.IsKeyUp(Keys.OemQuotes))
-                {
-                    searchText += "'";
-                }
-                if (searchText.Length > 0 && keyboardState.IsKeyDown(Keys.Back) && lastKeyboardState.IsKeyUp(Keys.Back))
-                {
-                    searchText = searchText.Substring(0, searchText.Length - 1);
-                }
-                if (keyboardState.IsKeyDown(Keys.Enter) && lastKeyboardState.IsKeyUp(Keys.Enter))
-                {
-                    if (!TryGetFile(searchText))
+                    Rectangle textureRectangle = new Rectangle((int)currentPosition.X, (int)currentPosition.Y, (int)manaTextureSize, (int)manaTextureSize);
+                    switch (cardCreationPass)
                     {
-                        searchTextColor = Color.Red;
+                        case IMGUIPass.Draw:
+                            spriteBatch.Draw(manaTexture, textureRectangle, color);
+                            break;
+                        case IMGUIPass.Update:
+                            if (Game1.PointInRectangle(input.MousePosition, textureRectangle))
+                            {
+                                if (input.LeftMouseDisengaged())
+                                {
+                                    manaBoxes[manaBoxIndex, manaType]--;
+                                    manaBoxes[manaBoxSwapIndex, manaType]++;
+                                    consumesMouseAction = true;
+                                    network.SendTransferMana(manaBoxIndex, manaBoxSwapIndex, manaType);
+                                }
+                                else if (input.RightMouseDisengaged())
+                                {
+                                    manaBoxes[manaBoxIndex, manaType]--;
+                                    consumesMouseAction = true;
+                                    network.SendRemoveMana(manaBoxIndex, manaType);
+                                }
+                            }
+                            break;
                     }
-                    else
+                    currentPosition.X += manaTextureSize;
+                    column++;
+                    if (column >= manaBoxWidthInMana)
                     {
-                        searchText = "";
+                        column = 0;
+                        currentPosition.X = topLeft.X;
+                        currentPosition.Y += manaTextureSize;
                     }
                 }
             }
-            lastKeyboardState = keyboardState;
+            return consumesMouseAction;
+        }
 
-            base.Update(gameTime);
+        // TODO(ian): inline this?
+        private bool DoAddManaButtons(IMGUIPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
+        {
+            bool consumesMouseAction = false;
+            for (int manaType = 0; manaType < manaTextures.Count; manaType++)
+            {
+                Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
+                switch (cardCreationPass)
+                {
+                    case IMGUIPass.Draw:
+                        Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
+                        spriteBatch.Draw(manaTexture, textureRectangle, Color.White);
+                        break;
+                    case IMGUIPass.Update:
+                        if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
+                        {
+                            manaBoxes[manaBoxIndex, manaType]++;
+                            consumesMouseAction = true;
+                            network.SendCreateMana(manaBoxIndex, manaType);
+                        }
+                        break;
+                }
+                topLeft.Y += manaTextureSize;
+            }
+            return consumesMouseAction;
+        }
+
+        // TODO(ian): inline this?
+        private bool DoRefreshManaButton(IMGUIPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
+        {
+            bool consumesMouseAction = false;
+            Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
+            switch (cardCreationPass)
+            {
+                case IMGUIPass.Draw:
+                    Texture2D refreshManaTexture = Content.Load<Texture2D>("Mana\\refresh.png");
+                    spriteBatch.Draw(refreshManaTexture, textureRectangle, Color.White);
+                    break;
+                case IMGUIPass.Update:
+                    if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
+                    {
+                        RefreshMana(manaBoxIndex);
+                        consumesMouseAction = true;
+                        network.SendRefreshMana(manaBoxIndex);
+                    }
+                    break;
+            }
+            return consumesMouseAction;
+        }
+
+        public void RefreshMana(int manaBoxIndex)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                manaBoxes[manaBoxIndex, i] += manaBoxes[manaBoxIndex + 1, i];
+                manaBoxes[manaBoxIndex + 1, i] = 0;
+            }
         }
 
         public static bool PointInTriangle(Vector2 p, Vector2 p0, Vector2 p1, Vector2 p2)
@@ -340,63 +607,6 @@ namespace GameName1
                 point.Y < bottom;
         }
 
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.DarkGray);
-
-            spriteBatch.Begin();
-
-            Entities.Sort(new EntityComparer());
-            foreach (Entity entity in Entities)
-            {
-                switch(entity.Type)
-                {
-                    case EntityType.Card:
-                        Card card = (Card)entity.TypeSpecificClass;
-                        float rotation = 0;
-                        if (card.Tapped)
-                            rotation = (float)Math.PI / 2f;
-                        spriteBatch.Draw(card.Texture, entity.Position, null, Color.White, rotation, card.GetHalf(), 1f, SpriteEffects.None, 0);
-                        break;
-                    case EntityType.Counter:
-                        Vector2 topArrowPoint = entity.Position + new Vector2(Counter.TextAreaWidth / 2f, 0);
-                        Vector2 bottomArrowPoint = topArrowPoint + new Vector2(0, 2 * Counter.Buttonheight + Counter.TextAreaHeight);
-                        float top = entity.Position.Y + Counter.Buttonheight;
-                        float bottom = top + Counter.TextAreaHeight;
-                        float left = entity.Position.X;
-                        float right = left + Counter.TextAreaWidth;
-
-                        // Text area box
-                        DrawLine(3, Color.SkyBlue, new Vector2(left, top), new Vector2(right, top));
-                        DrawLine(3, Color.SkyBlue, new Vector2(right, top), new Vector2(right, bottom));
-                        DrawLine(3, Color.SkyBlue, new Vector2(right, bottom), new Vector2(left, bottom));
-                        DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), new Vector2(left, top));
-
-                        // Top arrow
-                        DrawLine(3, Color.SkyBlue, new Vector2(left, top), topArrowPoint);
-                        DrawLine(3, Color.SkyBlue, topArrowPoint, new Vector2(right, top));
-
-                        // Bottom arrow
-                        DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), bottomArrowPoint);
-                        DrawLine(3, Color.SkyBlue, bottomArrowPoint, new Vector2(right, bottom));
-
-                        Counter counter = (Counter)entity.TypeSpecificClass;
-                        string text = counter.Value.ToString();
-                        SpriteFont fontToUse = font;
-                        Vector2 centerOffset = (new Vector2(Counter.TextAreaWidth, Counter.TextAreaHeight) - fontToUse.MeasureString(text)) / 2f;
-                        spriteBatch.DrawString(fontToUse, text, new Vector2(left, top) + centerOffset, Color.Blue);
-                        break;
-                }   
-            }
-
-            CardCreation(CardCreationPass.Draw);
-            ManaBoxes(CardCreationPass.Draw);
-
-            spriteBatch.End();
-
-            base.Draw(gameTime);
-        }
-
         private void SetWindowPosition(int x, int y)
         {
             Type type = typeof(GameWindow).Assembly.GetType("Microsoft.Xna.Framework.OpenTKGameWindow");
@@ -404,206 +614,6 @@ namespace GameName1
             OpenTK.INativeWindow window = (OpenTK.INativeWindow)field.GetValue(this.Window);
             window.X = x;
             window.Y = y;
-        }
-
-        char shownLetter = (char)0;
-        // Returns true if it consumes the mouse action.
-        private bool CardCreation(CardCreationPass cardCreationPass)
-        {
-            bool consumesMouseAction = false;
-            Panel panel = new Panel(new Vector2(5, 0));
-            panel.Font = font;
-            int start = (int)'A';
-            int end = (int)'Z';
-            for (int i = start; i <= end; i++)
-            {
-                if (panel.DoButton(cardCreationPass, input, spriteBatch, ((char)i).ToString()))
-                {
-                    shownLetter = (char)i;
-                    consumesMouseAction = true;
-                }
-            }
-            if (panel.DoButton(cardCreationPass, input, spriteBatch, "*"))
-            {
-                shownLetter = '*';
-            }
-            if (panel.DoButton(cardCreationPass, input, spriteBatch, "C"))
-            {
-                SpawnCounterAndSendNetworkMessage();
-            }
-            panel.DoText(cardCreationPass, spriteBatch, searchText, searchTextColor);
-            panel.Row();
-
-            if (input.RightMouseEngaged())
-            {
-                shownLetter = (char)0;
-                consumesMouseAction = true;
-            }
-
-            if (shownLetter != (char)0)
-            {
-                List<CardData> cardsToShow;
-                if (shownLetter == '*')
-                    cardsToShow = cardData.Where(x => x.Starred).ToList();
-                else
-                    cardsToShow = cardData.Where(x => x.Name.ToUpper()[0] == shownLetter).ToList();
-
-                foreach (CardData card in cardsToShow)
-                {
-                    Color starColor = Color.Black;
-                    if (!card.Starred)
-                        starColor = Color.White;
-                    if (panel.DoButton(cardCreationPass, input, spriteBatch, "*", starColor))
-                    {
-                        card.Starred = !card.Starred;
-                        SaveStarredCards();
-                    }
-                    if (panel.DoButton(cardCreationPass, input, spriteBatch, card.Name))
-                    {
-                        SpawnCardAndSendNetworkMessage(card.Name, card.TexturePath);
-                        shownLetter = (char)0;
-                        consumesMouseAction = true;
-                    }
-                    panel.Row();
-                }
-            }
-            return consumesMouseAction;
-        }
-
-        int manaBoxIndex_TopAvaliable = 0;
-        int manaBoxIndex_TopUsed = 1;
-        int manaBoxIndex_BottomAvaliable = 2;
-        int manaBoxIndex_BottomUsed = 3;
-        public int[,] manaBoxes = new int[4, 5];
-        int manaTextureSize = 30;
-        int manaBoxWidthInMana = 5;
-        int manaBoxHeightInMana = 5;
-        List<string> manaTextures = new List<string>() { "Mana\\greenMana.png", "Mana\\redMana.png", "Mana\\blueMana.png", "Mana\\blackMana.png", "Mana\\whiteMana.png" };
-
-        private bool ManaBoxes(CardCreationPass cardCreationPass)
-        {
-            bool consumesMouseAction = false;
-            int manaBoxWidth = manaBoxWidthInMana * manaTextureSize;
-            int totalManaBoxWidth = 2 * manaBoxWidth + manaTextureSize;
-
-            int startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth;
-            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX, 0), manaBoxIndex_TopAvaliable, manaBoxIndex_TopUsed, Color.White);
-            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX + manaBoxWidth, 0), manaBoxIndex_TopUsed, manaBoxIndex_TopAvaliable, Color.Gray);
-            consumesMouseAction |= DoAddManaButtons(cardCreationPass, new Vector2(startX + (2 * manaBoxWidth), 0), manaBoxIndex_TopAvaliable);
-            consumesMouseAction |= DoRefreshManaButton(cardCreationPass, new Vector2(startX - manaTextureSize, 0), manaBoxIndex_TopAvaliable);
-            
-            int startY = graphics.PreferredBackBufferHeight - (manaTextureSize * manaBoxHeightInMana);
-            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX, startY), manaBoxIndex_BottomAvaliable, manaBoxIndex_BottomUsed, Color.White);
-            consumesMouseAction |= DoManaBox(cardCreationPass, new Vector2(startX + manaBoxWidth, startY), manaBoxIndex_BottomUsed, manaBoxIndex_BottomAvaliable, Color.Gray);
-            consumesMouseAction |= DoAddManaButtons(cardCreationPass, new Vector2(startX + (2 * manaBoxWidth), startY), manaBoxIndex_BottomAvaliable);
-            consumesMouseAction |= DoRefreshManaButton(cardCreationPass, new Vector2(startX - manaTextureSize, startY), manaBoxIndex_BottomAvaliable);
-
-            return consumesMouseAction;
-        }
-
-        private bool DoManaBox(CardCreationPass cardCreationPass, Vector2 topLeft, int manaBoxIndex, int manaBoxSwapIndex, Color color)
-        {
-            bool consumesMouseAction = false;
-            Vector2 currentPosition = new Vector2(topLeft.X, topLeft.Y);
-            int column = 0;
-            for (int manaType = 0; manaType < 5; manaType++)
-            {
-                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
-                for (int mana = 0; mana < manaBoxes[manaBoxIndex, manaType]; mana++)
-                {
-                    Rectangle textureRectangle = new Rectangle((int)currentPosition.X, (int)currentPosition.Y, (int)manaTextureSize, (int)manaTextureSize);
-                    switch (cardCreationPass)
-                    {
-                        case CardCreationPass.Draw:
-                            spriteBatch.Draw(manaTexture, textureRectangle, color);
-                            break;
-                        case CardCreationPass.Update:
-                            if(Game1.PointInRectangle(input.MousePosition, textureRectangle))
-                            {
-                                if (input.LeftMouseDisengaged())
-                                {
-                                    manaBoxes[manaBoxIndex, manaType]--;
-                                    manaBoxes[manaBoxSwapIndex, manaType]++;
-                                    consumesMouseAction = true;
-                                    network.SendTransferMana(manaBoxIndex, manaBoxSwapIndex, manaType);
-                                }
-                                else if (input.RightMouseDisengaged())
-                                {
-                                    manaBoxes[manaBoxIndex, manaType]--;
-                                    consumesMouseAction = true;
-                                    network.SendRemoveMana(manaBoxIndex, manaType);
-                                }
-                            }
-                            break;
-                    }
-                    currentPosition.X += manaTextureSize;
-                    column++;
-                    if (column >= manaBoxWidthInMana)
-                    {
-                        column = 0;
-                        currentPosition.X = topLeft.X;
-                        currentPosition.Y += manaTextureSize;
-                    }
-                }
-            }
-            return consumesMouseAction;
-        }
-
-        private bool DoAddManaButtons(CardCreationPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
-        {
-            bool consumesMouseAction = false;
-            for (int manaType = 0; manaType < manaTextures.Count; manaType++)
-            {
-                Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
-                switch (cardCreationPass)
-                {
-                    case CardCreationPass.Draw:
-                        Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
-                        spriteBatch.Draw(manaTexture, textureRectangle, Color.White);
-                        break;
-                    case CardCreationPass.Update:
-                        if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
-                        {
-                            manaBoxes[manaBoxIndex, manaType]++;
-                            consumesMouseAction = true;
-                            network.SendCreateMana(manaBoxIndex, manaType);
-                        }
-                        break;
-                }
-                topLeft.Y += manaTextureSize;
-            }
-            return consumesMouseAction;
-        }
-
-        private bool DoRefreshManaButton(CardCreationPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
-        {
-            bool consumesMouseAction = false;
-            Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
-            switch (cardCreationPass)
-            {
-                case CardCreationPass.Draw:
-                    Texture2D refreshManaTexture = Content.Load<Texture2D>("Mana\\refresh.png");
-                    spriteBatch.Draw(refreshManaTexture, textureRectangle, Color.White);
-                    break;
-                case CardCreationPass.Update:
-                    if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
-                    {
-                        RefreshMana(manaBoxIndex);
-                        consumesMouseAction = true;
-                        network.SendRefreshMana(manaBoxIndex);
-                    }
-                    break;
-            }
-            return consumesMouseAction;
-        }
-
-        public void RefreshMana(int manaBoxIndex)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                manaBoxes[manaBoxIndex, i] += manaBoxes[manaBoxIndex + 1, i];
-                manaBoxes[manaBoxIndex + 1, i] = 0;
-            }
         }
 
         private void SaveStarredCards()

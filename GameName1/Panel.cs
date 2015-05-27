@@ -25,19 +25,19 @@ namespace GameName1
             Position.X = startX;
         }
 
-        internal bool DoButton(CardCreationPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text)
+        internal bool DoButton(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text)
         {
             return DoButton(cardCreationPass, input, spriteBatch, text, Color.Black);
         }
 
-        internal bool DoButton(CardCreationPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text, Color textColor)
+        internal bool DoButton(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text, Color textColor)
         {
             bool result = false;
             int buttonWidth = (int)Font.MeasureString(text).X + 10;
             Rectangle buttonRectangle = new Rectangle((int)Position.X, (int)Position.Y, buttonWidth, Font.LineSpacing);
             switch (cardCreationPass)
             {
-                case CardCreationPass.Draw:
+                case IMGUIPass.Draw:
                 {
                     Color color = Color.Wheat;
                     if (Game1.PointInRectangle(input.MousePosition, buttonRectangle))
@@ -46,7 +46,7 @@ namespace GameName1
                     spriteBatch.DrawString(Font, text, Position, textColor);
                 }
                 break;
-                case CardCreationPass.Update:
+                case IMGUIPass.Update:
                 {
                     if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, buttonRectangle))
                         result = true;
@@ -59,17 +59,17 @@ namespace GameName1
             return result;
         }
 
-        internal void DoText(CardCreationPass cardCreationPass, SpriteBatch spriteBatch, string text, Color textColor)
+        internal void DoText(IMGUIPass cardCreationPass, SpriteBatch spriteBatch, string text, Color textColor)
         {
             switch (cardCreationPass)
             {
-                case CardCreationPass.Draw:
+                case IMGUIPass.Draw:
                     {
                         spriteBatch.DrawString(Font, text, Position, textColor);
                         Position.X += Font.MeasureString(text).X;
                     }
                     break;
-                case CardCreationPass.Update:
+                case IMGUIPass.Update:
                     {
                     }
                     break;
