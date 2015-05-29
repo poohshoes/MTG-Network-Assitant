@@ -52,6 +52,7 @@ namespace GameName1
         WebClient client = new WebClient();
         KeyboardState keyboardState;
         KeyboardState lastKeyboardState;
+        Texture2D pixelTexture;
 
         int topDepth = 0;
         public int GetNextHeighestDepth()
@@ -65,6 +66,11 @@ namespace GameName1
             graphics = new GraphicsDeviceManager(this);
             Entities = new List<Entity>();
             settings = new Settings();
+
+            pixelTexture = new Texture2D(GraphicsDevice, 1, 1);
+            uint[] colorData = new uint[1];
+            colorData[0] = 0xFFFFFFFF;
+            pixelTexture.SetData<uint>(colorData);
         }
 
         protected override void Initialize()
@@ -169,8 +175,13 @@ namespace GameName1
         int manaTextureSize = 30;
         int manaBoxWidthInMana = 5;
 
+        Stopwatch timer = new Stopwatch();
+        Stopwatch timer2 = new Stopwatch();
+
         public void UpdateAndDraw(GameTime gameTime, IMGUIPass pass)
         {
+            timer.Restart();
+
             bool mouseActionConsumedDebug = true;
 
             // CARD CREATION
@@ -424,6 +435,7 @@ namespace GameName1
                             float left = entity.Position.X;
                             float right = left + Counter.TextAreaWidth;
 
+                            timer2.Start();
                             // Text area box
                             DrawLine(3, Color.SkyBlue, new Vector2(left, top), new Vector2(right, top));
                             DrawLine(3, Color.SkyBlue, new Vector2(right, top), new Vector2(right, bottom));
@@ -437,28 +449,29 @@ namespace GameName1
                             // Bottom arrow
                             DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), bottomArrowPoint);
                             DrawLine(3, Color.SkyBlue, bottomArrowPoint, new Vector2(right, bottom));
+                            timer2.Stop();
 
                             string text = counter.Value.ToString();
                             SpriteFont fontToUse = font;
                             Vector2 centerOffset = (new Vector2(Counter.TextAreaWidth, Counter.TextAreaHeight) - fontToUse.MeasureString(text)) / 2f;
                             spriteBatch.DrawString(fontToUse, text, new Vector2(left, top) + centerOffset, Color.Blue);
 
-                            // Test code
-                            Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
-                            if (PointInTriangle(input.MousePosition,
-                                    entity.Position + new Vector2(0, Counter.Buttonheight),
-                                    entity.Position + new Vector2(Counter.TextAreaWidth / 2, 0),
-                                    entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
-                            {
-                                spriteBatch.DrawString(fontToUse, "LOVE ME", entity.Position, Color.Red);
-                            }
-                            else if (PointInTriangle(input.MousePosition,
-                                    startOfBottomTriangle + new Vector2(0, 0),
-                                    startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
-                                    startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
-                            {
-                                spriteBatch.DrawString(fontToUse, "DAT CLICK", startOfBottomTriangle, Color.Red);
-                            }
+                            //// Test code
+                            //Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
+                            //if (PointInTriangle(input.MousePosition,
+                            //        entity.Position + new Vector2(0, Counter.Buttonheight),
+                            //        entity.Position + new Vector2(Counter.TextAreaWidth / 2, 0),
+                            //        entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
+                            //{
+                            //    spriteBatch.DrawString(fontToUse, "LOVE ME", entity.Position, Color.Red);
+                            //}
+                            //else if (PointInTriangle(input.MousePosition,
+                            //        startOfBottomTriangle + new Vector2(0, 0),
+                            //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
+                            //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
+                            //{
+                            //    spriteBatch.DrawString(fontToUse, "DAT CLICK", startOfBottomTriangle, Color.Red);
+                            //}
                         }
                         else // Update Pass
                         {
@@ -481,23 +494,27 @@ namespace GameName1
                                 }
                                 else if(input.LeftMouseDisengaged())
                                 {
-                                    Console.WriteLine("Checking Counter Buttons");
                                     Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
                                     int counterChange = 0;
-                                    if (PointInTriangle(input.MousePosition,
+                                    if (PointInRectangle(input.MousePosition,
+                                            new Rectangle((int)entity.Position.X, (int)entity.Position.Y, Counter.TextAreaHeight, Counter.Buttonheight)) &&
+                                        PointInTriangle(input.MousePosition,
                                             entity.Position + new Vector2(0, Counter.Buttonheight),
                                             entity.Position + new Vector2(Counter.TextAreaWidth / 2, 0),
                                             entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
                                     {
                                         counterChange = 1;
                                     }
-                                    else if (PointInTriangle(input.MousePosition,
+                                    else if (PointInRectangle(input.MousePosition,
+                                            new Rectangle((int)startOfBottomTriangle.X, (int)startOfBottomTriangle.Y, Counter.TextAreaHeight, Counter.Buttonheight)) &&
+                                        PointInTriangle(input.MousePosition,
                                             startOfBottomTriangle + new Vector2(0, 0),
                                             startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
                                             startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
                                     {
                                         counterChange = -1;
                                     }
+
                                     if (counterChange != 0)
                                     {
                                         counter.Value += counterChange;
@@ -520,6 +537,11 @@ namespace GameName1
             //{
             //    Console.WriteLine("MAC: No Mouse Action");
             //}
+
+            Console.WriteLine(pass.ToString() + " :" + timer.ElapsedMilliseconds);
+            Console.WriteLine(pass.ToString() + "2 :" + timer2.ElapsedMilliseconds);
+            timer.Stop();
+            timer2.Reset();
         }
 
         // TODO(ian): inline this?
@@ -760,11 +782,6 @@ namespace GameName1
         {
             float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
             float length = Vector2.Distance(point1, point2);
-
-            Texture2D pixelTexture = new Texture2D(GraphicsDevice, 1, 1);
-            uint[] colorData = new uint[1];
-            colorData[0] = 0xFFFFFFFF;
-            pixelTexture.SetData<uint>(colorData);
 
             spriteBatch.Draw(pixelTexture, point1, null, color, angle, Vector2.Zero, new Vector2(length, width), SpriteEffects.None, 0f);
         }
