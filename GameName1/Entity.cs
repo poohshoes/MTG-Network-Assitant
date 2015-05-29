@@ -58,9 +58,9 @@ namespace GameName1
 
     public class Counter
     {
-        public static int TextAreaWidth = 40;
-        public static int TextAreaHeight = 40;
-        public static int Buttonheight = 20;
+        public static int TextAreaWidth = 34;
+        public static int TextAreaHeight = 28;
+        public static int Buttonheight = 18;
 
         public int Value;
     }
@@ -70,6 +70,14 @@ namespace GameName1
         public int Compare(Entity one, Entity two)
         {
             return one.Depth - two.Depth;
+        }
+    }
+
+    class EntityComparerReverse : IComparer<Entity>
+    {
+        public int Compare(Entity one, Entity two)
+        {
+            return two.Depth - one.Depth;
         }
     }
 }

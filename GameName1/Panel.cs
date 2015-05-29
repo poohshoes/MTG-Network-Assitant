@@ -25,25 +25,28 @@ namespace GameName1
             Position.X = startX;
         }
 
-        internal bool DoButton(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text)
+        internal bool DoClickableText(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text)
         {
-            return DoButton(cardCreationPass, input, spriteBatch, text, Color.Black);
+            return DoClickableText(cardCreationPass, input, spriteBatch, text, Color.White);
         }
 
-        internal bool DoButton(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text, Color textColor)
+        internal bool DoClickableText(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text, Color textColor)
         {
             bool result = false;
-            int buttonWidth = (int)Font.MeasureString(text).X + 10;
+            int horisontalPadding = 5;
+            int buttonWidth = (int)Font.MeasureString(text).X + 2 * horisontalPadding;
             Rectangle buttonRectangle = new Rectangle((int)Position.X, (int)Position.Y, buttonWidth, Font.LineSpacing);
             switch (cardCreationPass)
             {
                 case IMGUIPass.Draw:
                 {
-                    Color color = Color.Wheat;
+                    spriteBatch.Draw(Game1.PixelTexture, buttonRectangle, null, Game1.tileColor);
                     if (Game1.PointInRectangle(input.MousePosition, buttonRectangle))
-                        color = Color.Yellow;
-                    spriteBatch.Draw(Game1.PixelTexture, buttonRectangle, null, color);
-                    spriteBatch.DrawString(Font, text, Position, textColor);
+                    {
+                        Game1.DrawRectangle(spriteBatch, 2, Game1.flareHighlightColor, buttonRectangle);
+                    }
+                    Vector2 textPosition = new Vector2(Position.X + horisontalPadding, Position.Y);
+                    spriteBatch.DrawString(Font, text, textPosition, textColor);
                 }
                 break;
                 case IMGUIPass.Update:

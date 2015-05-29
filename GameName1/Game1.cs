@@ -48,11 +48,17 @@ namespace GameName1
         int NetworkIDCounter;
 
         string searchText = "";
-        Color searchTextColor = Color.Black;
         WebClient client = new WebClient();
         KeyboardState keyboardState;
         KeyboardState lastKeyboardState;
-        Texture2D pixelTexture;
+        static Texture2D pixelTexture;
+
+        public static Color tileColor = new Color(55, 55, 55);
+        Color backgroundColor = new Color(35, 35, 35);
+        Color textColor = Color.White;
+        public static Color flareColor = new Color(33, 44, 188);
+        public static Color flareHighlightColor = new Color(73, 84, 226);
+        Color searchTextColor = Color.White;
 
         int topDepth = 0;
         public int GetNextHeighestDepth()
@@ -156,7 +162,7 @@ namespace GameName1
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkGray);
+            GraphicsDevice.Clear(backgroundColor);
 
             spriteBatch.Begin();
             
@@ -175,15 +181,8 @@ namespace GameName1
         int manaTextureSize = 30;
         int manaBoxWidthInMana = 5;
 
-        Stopwatch timer = new Stopwatch();
-        Stopwatch timer2 = new Stopwatch();
-
         public void UpdateAndDraw(GameTime gameTime, IMGUIPass pass)
         {
-            timer.Restart();
-
-            bool mouseActionConsumedDebug = true;
-
             // CARD CREATION
             bool mouseActionConsumed = false;
             Panel panel = new Panel(new Vector2(5, 0));
@@ -192,34 +191,24 @@ namespace GameName1
             int end = (int)'Z';
             for (int i = start; i <= end; i++)
             {
-                if (panel.DoButton(pass, input, spriteBatch, ((char)i).ToString()))
+                if (panel.DoClickableText(pass, input, spriteBatch, ((char)i).ToString()))
                 {
                     shownLetter = (char)i;
                     mouseActionConsumed = true;
-                    if (mouseActionConsumedDebug)
-                    {
-                        Console.WriteLine("MAC: Letter Selected");
-                    }
                 }
             }
-            if (panel.DoButton(pass, input, spriteBatch, "*"))
+            if (panel.DoClickableText(pass, input, spriteBatch, "*"))
             {
                 shownLetter = '*';
                 mouseActionConsumed = true;
-                if (mouseActionConsumedDebug)
-                {
-                    Console.WriteLine("MAC: * Selected");
-                }
             }
-            if (panel.DoButton(pass, input, spriteBatch, "C"))
+            if (panel.DoClickableText(pass, input, spriteBatch, "C"))
             {
                 SpawnCounterAndSendNetworkMessage();
                 mouseActionConsumed = true;
-                if (mouseActionConsumedDebug)
-                {
-                    Console.WriteLine("MAC: Counter Selected");
-                }
             }
+
+            // TODO(ian): We want to handle input in the opposite order that we draw in!
 
             // TYPED CARD RETREIVAL
             if (pass == IMGUIPass.Update)
@@ -236,7 +225,7 @@ namespace GameName1
                                 key += 32;
                             }
                             searchText += (char)key;
-                            searchTextColor = Color.Black;
+                            searchTextColor = textColor;
                         }
                     }
                     if (keyboardState.IsKeyDown(Keys.Space) && lastKeyboardState.IsKeyUp(Keys.Space))
@@ -279,10 +268,6 @@ namespace GameName1
             {
                 shownLetter = (char)0;
                 mouseActionConsumed = true;
-                if (mouseActionConsumedDebug)
-                {
-                    Console.WriteLine("MAC: Card List Closed");
-                }
             }
 
             if (shownLetter != (char)0)
@@ -295,23 +280,19 @@ namespace GameName1
 
                 foreach (CardData card in cardsToShow)
                 {
-                    Color starColor = Color.Black;
+                    Color starColor = Color.White;
                     if (!card.Starred)
-                        starColor = Color.White;
-                    if (panel.DoButton(pass, input, spriteBatch, "*", starColor))
+                        starColor = Color.Black;
+                    if (panel.DoClickableText(pass, input, spriteBatch, "*", starColor))
                     {
                         card.Starred = !card.Starred;
                         SaveStarredCards();
                     }
-                    if (panel.DoButton(pass, input, spriteBatch, card.Name))
+                    if (panel.DoClickableText(pass, input, spriteBatch, card.Name))
                     {
                         SpawnCardAndSendNetworkMessage(card.Name, card.TexturePath);
                         shownLetter = (char)0;
                         mouseActionConsumed = true;
-                        if (mouseActionConsumedDebug)
-                        {
-                            Console.WriteLine("MAC: Card Spawned");
-                        }
                     }
                     panel.Row();
                 }
@@ -341,11 +322,6 @@ namespace GameName1
                 mouseActionConsumed |= DoManaBox(pass, new Vector2(startX + manaBoxWidth, startY), manaBoxIndex_BottomUsed, manaBoxIndex_BottomAvaliable, Color.Gray);
                 mouseActionConsumed |= DoAddManaButtons(pass, new Vector2(startX + (2 * manaBoxWidth), startY), manaBoxIndex_BottomAvaliable);
                 mouseActionConsumed |= DoRefreshManaButton(pass, new Vector2(startX - manaTextureSize, startY), manaBoxIndex_BottomAvaliable);
-
-                if (mouseActionConsumedDebug && mouseActionConsumed)
-                {
-                    Console.WriteLine("MAC: Mana Box Action");
-                }
             }
 
             // CARDS AND COUNTERS
@@ -368,15 +344,18 @@ namespace GameName1
                         lastDragMessageSentSeconds = 0;
                         dragTarget = null;
                         mouseActionConsumed = true;
-                        if (mouseActionConsumedDebug)
-                        {
-                            Console.WriteLine("MAC: Entity Drag Stopped");
-                        }
                     }
                 }
             }
 
-            Entities.Sort(new EntityComparer());
+            if (pass == IMGUIPass.Draw)
+            {
+                Entities.Sort(new EntityComparer());
+            }
+            else
+            {
+                Entities.Sort(new EntityComparerReverse());
+            }
             foreach (Entity entity in Entities)
             {
                 switch (entity.Type)
@@ -400,10 +379,6 @@ namespace GameName1
                                     dragTarget = entity;
                                     dragTarget.Depth = GetNextHeighestDepth();
                                     mouseActionConsumed = true;
-                                    if (mouseActionConsumedDebug)
-                                    {
-                                        Console.WriteLine("MAC: Card Drag Started");
-                                    }
                                 }
                             }
 
@@ -416,10 +391,6 @@ namespace GameName1
                                     card.Tapped = !card.Tapped;
                                     network.SendEntityTappedMessage(entity.NetworkID);
                                     mouseActionConsumed = true;
-                                    if (mouseActionConsumedDebug)
-                                    {
-                                        Console.WriteLine("MAC: Card Tapped");
-                                    }
                                 }
                             }
                         }
@@ -430,48 +401,27 @@ namespace GameName1
                         {
                             Vector2 topArrowPoint = entity.Position + new Vector2(Counter.TextAreaWidth / 2f, 0);
                             Vector2 bottomArrowPoint = topArrowPoint + new Vector2(0, 2 * Counter.Buttonheight + Counter.TextAreaHeight);
-                            float top = entity.Position.Y + Counter.Buttonheight;
-                            float bottom = top + Counter.TextAreaHeight;
-                            float left = entity.Position.X;
-                            float right = left + Counter.TextAreaWidth;
+                            Rectangle textAreaRectangle = new Rectangle((int)entity.Position.X, 
+                                                                        (int)entity.Position.Y + Counter.Buttonheight, 
+                                                                        Counter.TextAreaWidth, 
+                                                                        Counter.TextAreaHeight);
 
-                            timer2.Start();
                             // Text area box
-                            DrawLine(3, Color.SkyBlue, new Vector2(left, top), new Vector2(right, top));
-                            DrawLine(3, Color.SkyBlue, new Vector2(right, top), new Vector2(right, bottom));
-                            DrawLine(3, Color.SkyBlue, new Vector2(right, bottom), new Vector2(left, bottom));
-                            DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), new Vector2(left, top));
+                            spriteBatch.Draw(Game1.PixelTexture, textAreaRectangle, null, Game1.tileColor);
+                            //DrawRectangle(spriteBatch, 2, flareColor, textAreaRectangle);
 
                             // Top arrow
-                            DrawLine(3, Color.SkyBlue, new Vector2(left, top), topArrowPoint);
-                            DrawLine(3, Color.SkyBlue, topArrowPoint, new Vector2(right, top));
+                            DrawLine(spriteBatch, 1, flareColor, new Vector2(textAreaRectangle.Left, textAreaRectangle.Top), topArrowPoint);
+                            DrawLine(spriteBatch, 1, flareColor, topArrowPoint, new Vector2(textAreaRectangle.Right, textAreaRectangle.Top));
 
                             // Bottom arrow
-                            DrawLine(3, Color.SkyBlue, new Vector2(left, bottom), bottomArrowPoint);
-                            DrawLine(3, Color.SkyBlue, bottomArrowPoint, new Vector2(right, bottom));
-                            timer2.Stop();
+                            DrawLine(spriteBatch, 1, flareColor, new Vector2(textAreaRectangle.Left, textAreaRectangle.Bottom), bottomArrowPoint);
+                            DrawLine(spriteBatch, 1, flareColor, bottomArrowPoint, new Vector2(textAreaRectangle.Right, textAreaRectangle.Bottom));
 
                             string text = counter.Value.ToString();
                             SpriteFont fontToUse = font;
                             Vector2 centerOffset = (new Vector2(Counter.TextAreaWidth, Counter.TextAreaHeight) - fontToUse.MeasureString(text)) / 2f;
-                            spriteBatch.DrawString(fontToUse, text, new Vector2(left, top) + centerOffset, Color.Blue);
-
-                            //// Test code
-                            //Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
-                            //if (PointInTriangle(input.MousePosition,
-                            //        entity.Position + new Vector2(0, Counter.Buttonheight),
-                            //        entity.Position + new Vector2(Counter.TextAreaWidth / 2, 0),
-                            //        entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
-                            //{
-                            //    spriteBatch.DrawString(fontToUse, "LOVE ME", entity.Position, Color.Red);
-                            //}
-                            //else if (PointInTriangle(input.MousePosition,
-                            //        startOfBottomTriangle + new Vector2(0, 0),
-                            //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
-                            //        startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
-                            //{
-                            //    spriteBatch.DrawString(fontToUse, "DAT CLICK", startOfBottomTriangle, Color.Red);
-                            //}
+                            spriteBatch.DrawString(fontToUse, text, new Vector2(textAreaRectangle.Left, textAreaRectangle.Top) + centerOffset, textColor);
                         }
                         else // Update Pass
                         {
@@ -486,28 +436,20 @@ namespace GameName1
                                         dragTarget = entity;
                                         dragTarget.Depth = GetNextHeighestDepth();
                                         mouseActionConsumed = true;
-                                        if (mouseActionConsumedDebug)
-                                        {
-                                            Console.WriteLine("MAC: Counter Drag Started");
-                                        }
                                     }
                                 }
                                 else if(input.LeftMouseDisengaged())
                                 {
                                     Vector2 startOfBottomTriangle = entity.Position + new Vector2(0, Counter.Buttonheight + Counter.TextAreaHeight);
                                     int counterChange = 0;
-                                    if (PointInRectangle(input.MousePosition,
-                                            new Rectangle((int)entity.Position.X, (int)entity.Position.Y, Counter.TextAreaHeight, Counter.Buttonheight)) &&
-                                        PointInTriangle(input.MousePosition,
+                                    if (PointInTriangle(input.MousePosition,
                                             entity.Position + new Vector2(0, Counter.Buttonheight),
                                             entity.Position + new Vector2(Counter.TextAreaWidth / 2, 0),
                                             entity.Position + new Vector2(Counter.TextAreaWidth, Counter.Buttonheight)))
                                     {
                                         counterChange = 1;
                                     }
-                                    else if (PointInRectangle(input.MousePosition,
-                                            new Rectangle((int)startOfBottomTriangle.X, (int)startOfBottomTriangle.Y, Counter.TextAreaHeight, Counter.Buttonheight)) &&
-                                        PointInTriangle(input.MousePosition,
+                                    else if (PointInTriangle(input.MousePosition,
                                             startOfBottomTriangle + new Vector2(0, 0),
                                             startOfBottomTriangle + new Vector2(Counter.TextAreaWidth / 2, Counter.Buttonheight),
                                             startOfBottomTriangle + new Vector2(Counter.TextAreaWidth, 0)))
@@ -520,10 +462,6 @@ namespace GameName1
                                         counter.Value += counterChange;
                                         network.SendCounterChangeMessage(entity.NetworkID, counter.Value);
                                         mouseActionConsumed = true;
-                                        if (mouseActionConsumedDebug)
-                                        {
-                                            Console.WriteLine("MAC: Counter Changed");
-                                        }
                                     }
                                 }
                             }
@@ -531,17 +469,6 @@ namespace GameName1
                         break;
                 }
             }
-
-            //if (!mouseActionConsumed && mouseActionConsumedDebug && 
-            //    (input.LeftMouseDisengaged() || input.LeftMouseEngaged() || input.RightMouseDisengaged() || input.RightMouseEngaged()))
-            //{
-            //    Console.WriteLine("MAC: No Mouse Action");
-            //}
-
-            Console.WriteLine(pass.ToString() + " :" + timer.ElapsedMilliseconds);
-            Console.WriteLine(pass.ToString() + "2 :" + timer2.ElapsedMilliseconds);
-            timer.Stop();
-            timer2.Reset();
         }
 
         // TODO(ian): inline this?
@@ -778,12 +705,25 @@ namespace GameName1
             return entity;
         }
 
-        internal void DrawLine(float width, Color color, Vector2 point1, Vector2 point2)
+        internal static void DrawRectangle(SpriteBatch spriteBatch, int lineThickness, Color color, Rectangle rectangle)
+        {
+            DrawRectangle(spriteBatch, lineThickness, color, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
+        }
+
+        internal static void DrawRectangle(SpriteBatch spriteBatch, int lineThickness, Color color, float left, float top, float right, float bottom)
+        {
+            DrawLine(spriteBatch, lineThickness, color, new Vector2(left, top), new Vector2(right, top));
+            DrawLine(spriteBatch, lineThickness, color, new Vector2(right, top), new Vector2(right, bottom));
+            DrawLine(spriteBatch, lineThickness, color, new Vector2(right, bottom), new Vector2(left, bottom));
+            DrawLine(spriteBatch, lineThickness, color, new Vector2(left, bottom), new Vector2(left, top));
+        }
+
+        internal static void DrawLine(SpriteBatch spriteBatch, float lineThickness, Color color, Vector2 point1, Vector2 point2)
         {
             float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
             float length = Vector2.Distance(point1, point2);
 
-            spriteBatch.Draw(pixelTexture, point1, null, color, angle, Vector2.Zero, new Vector2(length, width), SpriteEffects.None, 0f);
+            spriteBatch.Draw(pixelTexture, point1, null, color, angle, Vector2.Zero, new Vector2(length, lineThickness), SpriteEffects.None, 0f);
         }
     }
 }
