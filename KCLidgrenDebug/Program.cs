@@ -35,7 +35,7 @@ namespace KCLidgrenDebug
                     }
                 }
 
-                if (false)
+                if (true)
                 {
                     //if (!Debugger.IsAttached)
                     //    Debugger.Launch();

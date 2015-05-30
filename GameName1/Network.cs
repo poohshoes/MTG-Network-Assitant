@@ -201,6 +201,9 @@ namespace GameName1
                         }
                     }
                     break;
+                case NetworkMessageType.Reset:
+                    game.Reset();
+                    break;
             }
         }
 
@@ -214,7 +217,8 @@ namespace GameName1
             RemoveMana,
             SwapMana,
             RefreshMana,
-            CounterChanged
+            CounterChanged,
+            Reset
         }
 
         internal void SendCardCreateMessage(int entityNetworkID, string textureName, Microsoft.Xna.Framework.Vector2 entityNewPosition)
@@ -322,6 +326,16 @@ namespace GameName1
             message.Write((byte)NetworkMessageType.CounterChanged);
             message.Write(entityNetworkID);
             message.Write(newValue);
+            if (peer.ConnectionsCount > 0)
+            {
+                peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);
+            }
+        }
+
+        internal void SendResetMessage()
+        {
+            NetOutgoingMessage message = peer.CreateMessage();
+            message.Write((byte)NetworkMessageType.Reset);
             if (peer.ConnectionsCount > 0)
             {
                 peer.Connections[0].SendMessage(message, NetDeliveryMethod.ReliableOrdered, 0);

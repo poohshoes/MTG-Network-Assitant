@@ -132,16 +132,13 @@ namespace GameName1
             {
                 network = new Network(settings);
 
-                //// Note(ian): Comment this out for release.
-                //if (network.IsServer())
-                //    SetWindowPosition(0, 0);
-                //else
-                //    SetWindowPosition(1920, 0);
-
+                // Note(ian): Comment this out for release.
                 if (network.IsServer())
-                    NetworkIDCounter = 0;
+                    SetWindowPosition(0, 0);
                 else
-                    NetworkIDCounter = 1000000;
+                    SetWindowPosition(1920, 0);
+
+                ResetIdCounters();
             }
             network.Update(gameTime, this);
 
@@ -152,6 +149,14 @@ namespace GameName1
             lastKeyboardState = keyboardState;
 
             base.Update(gameTime);
+        }
+
+        void ResetIdCounters()
+        {
+            if (network.IsServer())
+                NetworkIDCounter = 0;
+            else
+                NetworkIDCounter = 1000000;
         }
 
         protected override void Draw(GameTime gameTime)
@@ -176,6 +181,15 @@ namespace GameName1
 
         public void UpdateAndDraw(GameTime gameTime, IMGUIPass pass)
         {
+            // RESET
+            List<Keys> keysConsumed = new List<Keys>();
+            if (input.KeyPressed(Keys.R) && (input.KeyboardState.IsKeyDown(Keys.LeftControl) || input.KeyboardState.IsKeyDown(Keys.RightControl)))
+            {
+                keysConsumed.Add(Keys.R);
+                network.SendResetMessage();
+                Reset();
+            }
+
             // CARD CREATION
             bool mouseActionConsumed = false;
             Panel panel = new Panel(new Vector2(5, 0));
@@ -208,14 +222,15 @@ namespace GameName1
                 {
                     for (int i = 65; i <= 90; i++)
                     {
-                        if (keyboardState.IsKeyDown((Keys)i) && lastKeyboardState.IsKeyUp((Keys)i))
+                        Keys key = (Keys)i;
+                        if (!keysConsumed.Contains(key) && keyboardState.IsKeyDown(key) && lastKeyboardState.IsKeyUp(key))
                         {
-                            int key = i;
+                            int keyInt = i;
                             if (!keyboardState.IsKeyDown(Keys.LeftShift) && !keyboardState.IsKeyDown(Keys.RightShift))
                             {
-                                key += 32;
+                                keyInt += 32;
                             }
-                            searchText += (char)key;
+                            searchText += (char)keyInt;
                             searchTextColor = textColor;
                         }
                     }
@@ -551,6 +566,19 @@ namespace GameName1
                         break;
                 }
             }
+        }
+
+        public void Reset()
+        {
+            Entities.Clear();
+            for (int boxIndex = 0; boxIndex < 4; boxIndex++)
+            {
+                for (int colourIndex = 0; colourIndex < 5; colourIndex++)
+                {
+                    manaBoxes[boxIndex, colourIndex] = 0;
+                }
+            }
+            ResetIdCounters();
         }
         
         public void RefreshMana(int manaBoxIndex)
