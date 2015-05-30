@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,25 @@ namespace KCLidgrenDebug
         {
             try
             {
+                if (!Debugger.IsAttached)
+                {
+                    if (!Directory.Exists("Temp"))
+                    {
+                        Directory.CreateDirectory("Temp");
+                    }
+                    WebClient client = new WebClient();
+                    client.DownloadFile("http://www.hernblog.com/mtgVersion.txt", "Temp\\mtgVersion.txt");
+                    int onlineVersionNumber = int.Parse(File.ReadAllLines("Temp\\mtgVersion.txt")[0]);
+                    int currentVersionNumber = int.Parse(File.ReadAllLines("mtgVersion.txt")[0]);
+                    if (onlineVersionNumber != currentVersionNumber)
+                    {
+                        // We can't update the updater if it's running so we make a copy.
+                        CopyDirectoryNotRecursive("Updater", "Temp\\Updater");
+                        Process.Start("Temp\\Updater\\Updater.exe");
+                        Process.GetCurrentProcess().Kill();
+                    }
+                }
+
                 if (false)
                 {
                     //if (!Debugger.IsAttached)
@@ -63,14 +83,31 @@ namespace KCLidgrenDebug
             }
             catch (Exception exception)
             {
-                // TODO(ian): include version number
+                if (Debugger.IsAttached)
+                {
+                    throw;
+                }
+                else
+                {
+                    string output = DateTime.Now.ToString() + Environment.NewLine +
+                        "Version: " + int.Parse(File.ReadAllLines("mtgVersion.txt")[0]) + Environment.NewLine +
+                        exception.Message + Environment.NewLine +
+                        exception.StackTrace + Environment.NewLine + Environment.NewLine;
+                    File.AppendAllText("crashLog.txt", output);
+                }
+            }
+        }
 
-                string output = DateTime.Now.ToString() + Environment.NewLine +
-                    exception.Message + Environment.NewLine +
-                    exception.StackTrace + Environment.NewLine + Environment.NewLine;
-                File.AppendAllText("crashLog.txt", output);
+        private static void CopyDirectoryNotRecursive(string from, string to)
+        {
+            if (!Directory.Exists(to))
+            {
+                Directory.CreateDirectory(to);
+            }
 
-                // TODO(ian): Upload this file to my server?
+            foreach (string file in Directory.GetFiles(from))
+            {
+                File.Copy(file, Path.Combine(to, Path.GetFileName(file)), true);
             }
         }
 

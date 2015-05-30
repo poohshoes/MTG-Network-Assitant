@@ -13,11 +13,24 @@ namespace UpdateUploader
     {
         static void Main(string[] args)
         {
-            // Create the zip file.
             string pathToZip = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             pathToZip = Path.GetFullPath(Path.Combine(pathToZip, "..\\..\\..\\..\\"));
             pathToZip += "KCLidgrenDebug\\bin\\Debug";
 
+            // Get the version number and save a reference file.
+            if (!Directory.Exists("Temp"))
+            {
+                Directory.CreateDirectory("Temp");
+            }
+            WebClient client = new WebClient();
+            client.DownloadFile("http://www.hernblog.com/mtgVersion.txt", "Temp\\mtgVersion.txt");
+            int oldVersionNumber = int.Parse(File.ReadAllLines("Temp\\mtgVersion.txt")[0]);
+            int newVectionNumber = oldVersionNumber + 1;
+            Console.WriteLine(oldVersionNumber + "->" + newVectionNumber);
+            string versionNumberPath = Path.Combine(pathToZip, "mtgVersion.txt");
+            File.WriteAllText(versionNumberPath, newVectionNumber.ToString());
+
+            // Create the zip file.
             string zippedFileName = "MTGNetPlay.zip";
             File.Delete(zippedFileName);
             using (ZipArchive archive = ZipFile.Open(zippedFileName, ZipArchiveMode.Create))
@@ -34,16 +47,23 @@ namespace UpdateUploader
 
                     foreach (string file in Directory.GetFiles(currentDirectory))
                     {
-
-                        if (currentDirectory.Substring(currentDirectory.Length - 4) == "Data" &&
-                            file.Substring(file.Length - 4) == ".jpg")
+                        string entryName = file.Replace(pathToZip + "\\", "");
+                        if ((currentDirectory.Substring(currentDirectory.Length - 4) == "Data" &&
+                            file.Substring(file.Length - 4) == ".jpg") ||
+                            entryName == "crashLog.txt" ||
+                            entryName == "starred.txt" ||
+                            entryName == "KCLidgrenDebug.vshost.exe.config" ||
+                            entryName == "KCLidgrenDebug.vshost.exe.manifest" ||
+                            entryName == "MTGGame.exe.config" ||
+                            entryName == "MTGGame.vshost.exe" ||
+                            entryName == "MTGGame.vshost.exe.config" ||
+                            entryName == "MTGGame.vshost.exe.manifest")
                         {
                             // Ignore these files
                         }
                         else
                         {
                             //Console.WriteLine(file + " ");
-                            string entryName = file.Replace(pathToZip + "\\", "");
                             Console.WriteLine(entryName);
                             archive.CreateEntryFromFile(file, entryName);
                         }
@@ -54,18 +74,9 @@ namespace UpdateUploader
             // Upload the new zip.
             UploadFile(zippedFileName);
 
-            // Update the version number.
-            if(!Directory.Exists("Temp"))
-            {
-                Directory.CreateDirectory("Temp");
-            }
-            WebClient client = new WebClient();
-            client.DownloadFile("http://www.hernblog.com/mtgVersion.txt", "Temp\\mtgVersion.txt");
-            int oldVersionNumber = int.Parse(File.ReadAllLines("Temp\\mtgVersion.txt")[0]);
-            int newVectionNumber = oldVersionNumber + 1;
-            Console.WriteLine(oldVersionNumber + "->" + newVectionNumber);
-            File.WriteAllText("Temp\\mtgVersion.txt", newVectionNumber.ToString());
-            UploadFile("Temp\\mtgVersion.txt");
+            // Upload the new version number.
+            Console.WriteLine("Uploading New Version File(" + newVectionNumber + ").");
+            UploadFile(versionNumberPath);
 
             //Console.ReadLine();
         }
