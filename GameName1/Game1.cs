@@ -172,6 +172,7 @@ namespace GameName1
         List<string> manaTextures = new List<string>() { "Mana\\greenMana.png", "Mana\\redMana.png", "Mana\\blueMana.png", "Mana\\blackMana.png", "Mana\\whiteMana.png" };
         int manaTextureSize = 30;
         int manaBoxWidthInMana = 5;
+        int manaBoxHeightInMana = 5;
 
         public void UpdateAndDraw(GameTime gameTime, IMGUIPass pass)
         {
@@ -296,22 +297,122 @@ namespace GameName1
                 int manaBoxIndex_BottomAvaliable = 2;
                 int manaBoxIndex_BottomUsed = 3;
 
-                int manaBoxHeightInMana = 5;
-                
                 int manaBoxWidth = manaBoxWidthInMana * manaTextureSize;
                 int totalManaBoxWidth = 2 * manaBoxWidth + manaTextureSize;
-                
-                int startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth;
-                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX, 0), manaBoxIndex_TopAvaliable, manaBoxIndex_TopUsed, Color.White);
-                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX + manaBoxWidth, 0), manaBoxIndex_TopUsed, manaBoxIndex_TopAvaliable, Color.Gray);
-                mouseActionConsumed |= DoAddManaButtons(pass, new Vector2(startX + (2 * manaBoxWidth), 0), manaBoxIndex_TopAvaliable);
-                mouseActionConsumed |= DoRefreshManaButton(pass, new Vector2(startX - manaTextureSize, 0), manaBoxIndex_TopAvaliable);
+                int totalManaBoxHeight = manaTextureSize * manaBoxHeightInMana;
 
-                int startY = graphics.PreferredBackBufferHeight - (manaTextureSize * manaBoxHeightInMana);
-                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX, startY), manaBoxIndex_BottomAvaliable, manaBoxIndex_BottomUsed, Color.White);
-                mouseActionConsumed |= DoManaBox(pass, new Vector2(startX + manaBoxWidth, startY), manaBoxIndex_BottomUsed, manaBoxIndex_BottomAvaliable, Color.Gray);
-                mouseActionConsumed |= DoAddManaButtons(pass, new Vector2(startX + (2 * manaBoxWidth), startY), manaBoxIndex_BottomAvaliable);
-                mouseActionConsumed |= DoRefreshManaButton(pass, new Vector2(startX - manaTextureSize, startY), manaBoxIndex_BottomAvaliable);
+                float startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth - manaTextureSize;
+                Vector2[] refreshButtonPositions = new Vector2[2] { new Vector2(startX, 0), new Vector2(startX, graphics.PreferredBackBufferHeight - totalManaBoxHeight) };
+                int[] avaliableManaIndex = new int[2] { manaBoxIndex_TopAvaliable, manaBoxIndex_BottomAvaliable };
+                int[] usedManaIndex = new int[2] { manaBoxIndex_TopUsed, manaBoxIndex_BottomUsed };
+                for(int i = 0; i <= 1; i++)
+                {
+                    // Refresh Button
+                    Rectangle refreshButtonTextureRectangle = new Rectangle((int)refreshButtonPositions[i].X, (int)refreshButtonPositions[i].Y, (int)manaTextureSize, (int)manaTextureSize);
+                    switch (pass)
+                    {
+                        case IMGUIPass.Draw:
+                            Texture2D refreshManaTexture = Content.Load<Texture2D>("Mana\\refresh.png");
+                            renderer.Draw(refreshManaTexture, refreshButtonTextureRectangle, Color.White);
+                            break;
+                        case IMGUIPass.Update:
+                            if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, refreshButtonTextureRectangle))
+                            {
+                                RefreshMana(avaliableManaIndex[i]);
+                                mouseActionConsumed = true;
+                                network.SendRefreshMana(avaliableManaIndex[i]);
+                            }
+                            break;
+                    }
+
+                    Vector2 availiableManaBoxPosition = refreshButtonPositions[i] + new Vector2(manaTextureSize, 0);
+                    Vector2 usedManaBoxPosition = availiableManaBoxPosition + new Vector2(manaBoxWidth, 0);
+
+                    Vector2[] manaBoxPosition = new Vector2[2] { availiableManaBoxPosition, usedManaBoxPosition };
+                    int[] myManaIndex = new int[2] { avaliableManaIndex[i], usedManaIndex[i] };
+                    int[] swapManaIndex = new int[2] { usedManaIndex[i], avaliableManaIndex[i] };
+                    Color[] textureColor = new Color[2] { Color.White, Color.Gray };
+                    for(int j = 0; j <= 1; j++)
+                    {
+                        Vector2 currentPosition = new Vector2(manaBoxPosition[j].X, manaBoxPosition[j].Y);
+                        int column = 0;
+                        for (int manaType = 0; manaType < 5; manaType++)
+                        {
+                            Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
+                            for (int mana = 0; mana < manaBoxes[myManaIndex[j], manaType]; mana++)
+                            {
+                                Rectangle manaTextureRectangle = new Rectangle((int)currentPosition.X, (int)currentPosition.Y, (int)manaTextureSize, (int)manaTextureSize);
+                                switch (pass)
+                                {
+                                    case IMGUIPass.Draw:
+                                        renderer.Draw(manaTexture, manaTextureRectangle, textureColor[j]);
+                                        break;
+                                    case IMGUIPass.Update:
+                                        if (Game1.PointInRectangle(input.MousePosition, manaTextureRectangle))
+                                        {
+                                            if (input.LeftMouseDisengaged())
+                                            {
+                                                manaBoxes[myManaIndex[j], manaType]--;
+                                                manaBoxes[swapManaIndex[j], manaType]++;
+                                                mouseActionConsumed = true;
+                                                network.SendTransferMana(myManaIndex[j], swapManaIndex[j], manaType);
+                                            }
+                                            else if (input.RightMouseDisengaged())
+                                            {
+                                                manaBoxes[myManaIndex[j], manaType]--;
+                                                mouseActionConsumed = true;
+                                                network.SendRemoveMana(myManaIndex[j], manaType);
+                                            }
+                                        }
+                                        break;
+                                }
+                                currentPosition.X += manaTextureSize;
+                                column++;
+                                if (column >= manaBoxWidthInMana)
+                                {
+                                    column = 0;
+                                    currentPosition.X = manaBoxPosition[j].X;
+                                    currentPosition.Y += manaTextureSize;
+                                }
+                            }
+                        }
+                    }
+
+                    // Add Mana Buttons
+                    Vector2 addManaBoxPosition = usedManaBoxPosition + new Vector2(manaBoxWidth, 0);
+                    for (int manaType = 0; manaType < manaTextures.Count; manaType++)
+                    {
+                        Rectangle manaTextureRectangle = new Rectangle((int)addManaBoxPosition.X,
+                                                                       (int)addManaBoxPosition.Y + manaType * manaTextureSize, 
+                                                                       (int)manaTextureSize, 
+                                                                       (int)manaTextureSize);
+                        switch (pass)
+                        {
+                            case IMGUIPass.Draw:
+                                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
+                                renderer.Draw(manaTexture, manaTextureRectangle, Color.White);
+                                break;
+                            case IMGUIPass.Update:
+                                if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, manaTextureRectangle))
+                                {
+                                    manaBoxes[avaliableManaIndex[i], manaType]++;
+                                    mouseActionConsumed = true;
+                                    network.SendCreateMana(avaliableManaIndex[i], manaType);
+                                }
+                                break;
+                        }
+                    }
+
+                    // Blue Lines
+                    if (pass == IMGUIPass.Draw)
+                    {
+                        Rectangle manaBoxRectangle = new Rectangle((int)availiableManaBoxPosition.X, (int)availiableManaBoxPosition.Y, totalManaBoxWidth, totalManaBoxHeight);
+                        renderer.DrawRectangleOutline(2, flareColor, manaBoxRectangle);
+                        renderer.DrawLine(2, flareColor, usedManaBoxPosition, usedManaBoxPosition + new Vector2(0, totalManaBoxHeight));
+                        renderer.DrawLine(2, flareColor, addManaBoxPosition, addManaBoxPosition + new Vector2(0, totalManaBoxHeight));
+                        renderer.DrawRectangle(manaBoxRectangle, tileColor);
+                    }
+                }
             }
 
             // CARDS AND COUNTERS
@@ -451,106 +552,7 @@ namespace GameName1
                 }
             }
         }
-
-        // TODO(ian): inline this?
-        private bool DoManaBox(IMGUIPass cardCreationPass, Vector2 topLeft, int manaBoxIndex, int manaBoxSwapIndex, Color color)
-        {
-            bool consumesMouseAction = false;
-            Vector2 currentPosition = new Vector2(topLeft.X, topLeft.Y);
-            int column = 0;
-            for (int manaType = 0; manaType < 5; manaType++)
-            {
-                Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
-                for (int mana = 0; mana < manaBoxes[manaBoxIndex, manaType]; mana++)
-                {
-                    Rectangle textureRectangle = new Rectangle((int)currentPosition.X, (int)currentPosition.Y, (int)manaTextureSize, (int)manaTextureSize);
-                    switch (cardCreationPass)
-                    {
-                        case IMGUIPass.Draw:
-                            renderer.Draw(manaTexture, textureRectangle, color);
-                            break;
-                        case IMGUIPass.Update:
-                            if (Game1.PointInRectangle(input.MousePosition, textureRectangle))
-                            {
-                                if (input.LeftMouseDisengaged())
-                                {
-                                    manaBoxes[manaBoxIndex, manaType]--;
-                                    manaBoxes[manaBoxSwapIndex, manaType]++;
-                                    consumesMouseAction = true;
-                                    network.SendTransferMana(manaBoxIndex, manaBoxSwapIndex, manaType);
-                                }
-                                else if (input.RightMouseDisengaged())
-                                {
-                                    manaBoxes[manaBoxIndex, manaType]--;
-                                    consumesMouseAction = true;
-                                    network.SendRemoveMana(manaBoxIndex, manaType);
-                                }
-                            }
-                            break;
-                    }
-                    currentPosition.X += manaTextureSize;
-                    column++;
-                    if (column >= manaBoxWidthInMana)
-                    {
-                        column = 0;
-                        currentPosition.X = topLeft.X;
-                        currentPosition.Y += manaTextureSize;
-                    }
-                }
-            }
-            return consumesMouseAction;
-        }
-
-        // TODO(ian): inline this?
-        private bool DoAddManaButtons(IMGUIPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
-        {
-            bool consumesMouseAction = false;
-            for (int manaType = 0; manaType < manaTextures.Count; manaType++)
-            {
-                Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
-                switch (cardCreationPass)
-                {
-                    case IMGUIPass.Draw:
-                        Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
-                        renderer.Draw(manaTexture, textureRectangle, Color.White);
-                        break;
-                    case IMGUIPass.Update:
-                        if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
-                        {
-                            manaBoxes[manaBoxIndex, manaType]++;
-                            consumesMouseAction = true;
-                            network.SendCreateMana(manaBoxIndex, manaType);
-                        }
-                        break;
-                }
-                topLeft.Y += manaTextureSize;
-            }
-            return consumesMouseAction;
-        }
-
-        // TODO(ian): inline this?
-        private bool DoRefreshManaButton(IMGUIPass cardCreationPass, Vector2 topLeft, int manaBoxIndex)
-        {
-            bool consumesMouseAction = false;
-            Rectangle textureRectangle = new Rectangle((int)topLeft.X, (int)topLeft.Y, (int)manaTextureSize, (int)manaTextureSize);
-            switch (cardCreationPass)
-            {
-                case IMGUIPass.Draw:
-                    Texture2D refreshManaTexture = Content.Load<Texture2D>("Mana\\refresh.png");
-                    renderer.Draw(refreshManaTexture, textureRectangle, Color.White);
-                    break;
-                case IMGUIPass.Update:
-                    if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
-                    {
-                        RefreshMana(manaBoxIndex);
-                        consumesMouseAction = true;
-                        network.SendRefreshMana(manaBoxIndex);
-                    }
-                    break;
-            }
-            return consumesMouseAction;
-        }
-
+        
         public void RefreshMana(int manaBoxIndex)
         {
             for (int i = 0; i < 5; i++)
