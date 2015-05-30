@@ -25,12 +25,12 @@ namespace GameName1
             Position.X = startX;
         }
 
-        internal bool DoClickableText(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text)
+        internal bool DoClickableText(Renderer renderer, IMGUIPass cardCreationPass, Input input, string text)
         {
-            return DoClickableText(cardCreationPass, input, spriteBatch, text, Color.White);
+            return DoClickableText(renderer, cardCreationPass, input, text, Color.White);
         }
 
-        internal bool DoClickableText(IMGUIPass cardCreationPass, Input input, SpriteBatch spriteBatch, string text, Color textColor)
+        internal bool DoClickableText(Renderer renderer, IMGUIPass cardCreationPass, Input input, string text, Color textColor)
         {
             bool result = false;
             int horisontalPadding = 5;
@@ -40,13 +40,13 @@ namespace GameName1
             {
                 case IMGUIPass.Draw:
                 {
-                    spriteBatch.Draw(Game1.PixelTexture, buttonRectangle, null, Game1.tileColor);
+                    Vector2 textPosition = new Vector2(Position.X + horisontalPadding, Position.Y);
+                    renderer.DrawString(Font, text, textPosition, textColor);
                     if (Game1.PointInRectangle(input.MousePosition, buttonRectangle))
                     {
-                        Game1.DrawRectangle(spriteBatch, 2, Game1.flareHighlightColor, buttonRectangle);
+                        renderer.DrawRectangleOutline(2, Game1.flareHighlightColor, buttonRectangle);
                     }
-                    Vector2 textPosition = new Vector2(Position.X + horisontalPadding, Position.Y);
-                    spriteBatch.DrawString(Font, text, textPosition, textColor);
+                    renderer.DrawRectangle(buttonRectangle, Game1.tileColor);
                 }
                 break;
                 case IMGUIPass.Update:
@@ -62,13 +62,13 @@ namespace GameName1
             return result;
         }
 
-        internal void DoText(IMGUIPass cardCreationPass, SpriteBatch spriteBatch, string text, Color textColor)
+        internal void DoText(Renderer renderer, IMGUIPass cardCreationPass, string text, Color textColor)
         {
             switch (cardCreationPass)
             {
                 case IMGUIPass.Draw:
                     {
-                        spriteBatch.DrawString(Font, text, Position, textColor);
+                        renderer.DrawString(Font, text, Position, textColor);
                         Position.X += Font.MeasureString(text).X;
                     }
                     break;

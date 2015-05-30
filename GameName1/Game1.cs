@@ -30,8 +30,6 @@ namespace GameName1
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
-        public static Texture2D PixelTexture;
-        SpriteBatch spriteBatch;
         Network network;
 
         Input input;
@@ -59,6 +57,8 @@ namespace GameName1
         public static Color flareColor = new Color(33, 44, 188);
         public static Color flareHighlightColor = new Color(73, 84, 226);
         Color searchTextColor = Color.White;
+
+        Renderer renderer;
 
         int topDepth = 0;
         public int GetNextHeighestDepth()
@@ -92,15 +92,9 @@ namespace GameName1
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            renderer = new Renderer(GraphicsDevice);
 
             Content.RootDirectory = "Data";
-
-            PixelTexture = new Texture2D(graphics.GraphicsDevice, 1, 1);
-            Color[] pixelTextureData = new Color[1];
-            PixelTexture.GetData<Color>(pixelTextureData);
-            pixelTextureData[0] = Color.White;
-            PixelTexture.SetData<Color>(pixelTextureData);
 
             font = Content.Load<SpriteFont>("SegoeUIMono12");
 
@@ -164,11 +158,9 @@ namespace GameName1
         {
             GraphicsDevice.Clear(backgroundColor);
 
-            spriteBatch.Begin();
-            
             UpdateAndDraw(gameTime, IMGUIPass.Draw);
 
-            spriteBatch.End();
+            renderer.End();
 
             base.Draw(gameTime);
         }
@@ -191,24 +183,22 @@ namespace GameName1
             int end = (int)'Z';
             for (int i = start; i <= end; i++)
             {
-                if (panel.DoClickableText(pass, input, spriteBatch, ((char)i).ToString()))
+                if (panel.DoClickableText(renderer, pass, input, ((char)i).ToString()))
                 {
                     shownLetter = (char)i;
                     mouseActionConsumed = true;
                 }
             }
-            if (panel.DoClickableText(pass, input, spriteBatch, "*"))
+            if (panel.DoClickableText(renderer, pass, input, "*"))
             {
                 shownLetter = '*';
                 mouseActionConsumed = true;
             }
-            if (panel.DoClickableText(pass, input, spriteBatch, "C"))
+            if (panel.DoClickableText(renderer, pass, input, "C"))
             {
                 SpawnCounterAndSendNetworkMessage();
                 mouseActionConsumed = true;
             }
-
-            // TODO(ian): We want to handle input in the opposite order that we draw in!
 
             // TYPED CARD RETREIVAL
             if (pass == IMGUIPass.Update)
@@ -261,7 +251,7 @@ namespace GameName1
                     }
                 }
             }
-            panel.DoText(pass, spriteBatch, searchText, searchTextColor);
+            panel.DoText(renderer, pass, searchText, searchTextColor);
             panel.Row();
 
             if (input.RightMouseEngaged() && shownLetter != (char)0)
@@ -283,12 +273,12 @@ namespace GameName1
                     Color starColor = Color.White;
                     if (!card.Starred)
                         starColor = Color.Black;
-                    if (panel.DoClickableText(pass, input, spriteBatch, "*", starColor))
+                    if (panel.DoClickableText(renderer, pass, input, "*", starColor))
                     {
                         card.Starred = !card.Starred;
                         SaveStarredCards();
                     }
-                    if (panel.DoClickableText(pass, input, spriteBatch, card.Name))
+                    if (panel.DoClickableText(renderer, pass, input, card.Name))
                     {
                         SpawnCardAndSendNetworkMessage(card.Name, card.TexturePath);
                         shownLetter = (char)0;
@@ -310,7 +300,7 @@ namespace GameName1
                 
                 int manaBoxWidth = manaBoxWidthInMana * manaTextureSize;
                 int totalManaBoxWidth = 2 * manaBoxWidth + manaTextureSize;
-
+                
                 int startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth;
                 mouseActionConsumed |= DoManaBox(pass, new Vector2(startX, 0), manaBoxIndex_TopAvaliable, manaBoxIndex_TopUsed, Color.White);
                 mouseActionConsumed |= DoManaBox(pass, new Vector2(startX + manaBoxWidth, 0), manaBoxIndex_TopUsed, manaBoxIndex_TopAvaliable, Color.Gray);
@@ -348,14 +338,7 @@ namespace GameName1
                 }
             }
 
-            if (pass == IMGUIPass.Draw)
-            {
-                Entities.Sort(new EntityComparer());
-            }
-            else
-            {
-                Entities.Sort(new EntityComparerReverse());
-            }
+            Entities.Sort(new EntityComparerReverse());
             foreach (Entity entity in Entities)
             {
                 switch (entity.Type)
@@ -367,7 +350,7 @@ namespace GameName1
                             float rotation = 0;
                             if (card.Tapped)
                                 rotation = (float)Math.PI / 2f;
-                            spriteBatch.Draw(card.Texture, entity.Position, null, Color.White, rotation, card.GetHalf(), 1f, SpriteEffects.None, 0);
+                            renderer.Draw(card.Texture, entity.Position, Color.White, rotation, card.GetHalf());
                         }
                         else // Update Pass
                         {
@@ -405,23 +388,21 @@ namespace GameName1
                                                                         (int)entity.Position.Y + Counter.Buttonheight, 
                                                                         Counter.TextAreaWidth, 
                                                                         Counter.TextAreaHeight);
-
-                            // Text area box
-                            spriteBatch.Draw(Game1.PixelTexture, textAreaRectangle, null, Game1.tileColor);
-                            //DrawRectangle(spriteBatch, 2, flareColor, textAreaRectangle);
-
+                            
                             // Top arrow
-                            DrawLine(spriteBatch, 1, flareColor, new Vector2(textAreaRectangle.Left, textAreaRectangle.Top), topArrowPoint);
-                            DrawLine(spriteBatch, 1, flareColor, topArrowPoint, new Vector2(textAreaRectangle.Right, textAreaRectangle.Top));
+                            renderer.DrawLine(1, flareColor, new Vector2(textAreaRectangle.Left, textAreaRectangle.Top), topArrowPoint);
+                            renderer.DrawLine(1, flareColor, topArrowPoint, new Vector2(textAreaRectangle.Right, textAreaRectangle.Top));
 
                             // Bottom arrow
-                            DrawLine(spriteBatch, 1, flareColor, new Vector2(textAreaRectangle.Left, textAreaRectangle.Bottom), bottomArrowPoint);
-                            DrawLine(spriteBatch, 1, flareColor, bottomArrowPoint, new Vector2(textAreaRectangle.Right, textAreaRectangle.Bottom));
+                            renderer.DrawLine(1, flareColor, new Vector2(textAreaRectangle.Left, textAreaRectangle.Bottom), bottomArrowPoint);
+                            renderer.DrawLine(1, flareColor, bottomArrowPoint, new Vector2(textAreaRectangle.Right, textAreaRectangle.Bottom));
 
                             string text = counter.Value.ToString();
                             SpriteFont fontToUse = font;
                             Vector2 centerOffset = (new Vector2(Counter.TextAreaWidth, Counter.TextAreaHeight) - fontToUse.MeasureString(text)) / 2f;
-                            spriteBatch.DrawString(fontToUse, text, new Vector2(textAreaRectangle.Left, textAreaRectangle.Top) + centerOffset, textColor);
+                            renderer.DrawString(fontToUse, text, new Vector2(textAreaRectangle.Left, textAreaRectangle.Top) + centerOffset, textColor);
+
+                            renderer.DrawRectangle(textAreaRectangle, Game1.tileColor);
                         }
                         else // Update Pass
                         {
@@ -486,7 +467,7 @@ namespace GameName1
                     switch (cardCreationPass)
                     {
                         case IMGUIPass.Draw:
-                            spriteBatch.Draw(manaTexture, textureRectangle, color);
+                            renderer.Draw(manaTexture, textureRectangle, color);
                             break;
                         case IMGUIPass.Update:
                             if (Game1.PointInRectangle(input.MousePosition, textureRectangle))
@@ -531,7 +512,7 @@ namespace GameName1
                 {
                     case IMGUIPass.Draw:
                         Texture2D manaTexture = Content.Load<Texture2D>(manaTextures[manaType]);
-                        spriteBatch.Draw(manaTexture, textureRectangle, Color.White);
+                        renderer.Draw(manaTexture, textureRectangle, Color.White);
                         break;
                     case IMGUIPass.Update:
                         if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
@@ -556,7 +537,7 @@ namespace GameName1
             {
                 case IMGUIPass.Draw:
                     Texture2D refreshManaTexture = Content.Load<Texture2D>("Mana\\refresh.png");
-                    spriteBatch.Draw(refreshManaTexture, textureRectangle, Color.White);
+                    renderer.Draw(refreshManaTexture, textureRectangle, Color.White);
                     break;
                 case IMGUIPass.Update:
                     if (input.LeftMouseDisengaged() && Game1.PointInRectangle(input.MousePosition, textureRectangle))
@@ -703,27 +684,6 @@ namespace GameName1
             Entities.Add(entity);
             entity.Depth = GetNextHeighestDepth();
             return entity;
-        }
-
-        internal static void DrawRectangle(SpriteBatch spriteBatch, int lineThickness, Color color, Rectangle rectangle)
-        {
-            DrawRectangle(spriteBatch, lineThickness, color, rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
-        }
-
-        internal static void DrawRectangle(SpriteBatch spriteBatch, int lineThickness, Color color, float left, float top, float right, float bottom)
-        {
-            DrawLine(spriteBatch, lineThickness, color, new Vector2(left, top), new Vector2(right, top));
-            DrawLine(spriteBatch, lineThickness, color, new Vector2(right, top), new Vector2(right, bottom));
-            DrawLine(spriteBatch, lineThickness, color, new Vector2(right, bottom), new Vector2(left, bottom));
-            DrawLine(spriteBatch, lineThickness, color, new Vector2(left, bottom), new Vector2(left, top));
-        }
-
-        internal static void DrawLine(SpriteBatch spriteBatch, float lineThickness, Color color, Vector2 point1, Vector2 point2)
-        {
-            float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
-            float length = Vector2.Distance(point1, point2);
-
-            spriteBatch.Draw(pixelTexture, point1, null, color, angle, Vector2.Zero, new Vector2(length, lineThickness), SpriteEffects.None, 0f);
         }
     }
 }
