@@ -13,52 +13,65 @@ namespace KCLidgrenDebug
     {
         static void Main()
         {
-            if (false)
+            try
             {
-                //if (!Debugger.IsAttached)
-                //    Debugger.Launch();
-                //Debugger.Break();
-                if (Directory.GetCurrentDirectory() == "D:\\Projects\\MTGNetworkPlay\\KCLidgrenDebug\\bin\\Debug")
+                if (false)
                 {
-                    string fileDirectory = Directory.GetCurrentDirectory();
-                    string copyDirectoryName = "C:\\Users\\Ian\\Desktop\\MTGMultiPlay";
-                    DirectoryCopy(Directory.GetCurrentDirectory(), copyDirectoryName);
-
-                    string ourSettings, otherSettings;
-                    if (true)// Attach to Server == true
+                    //if (!Debugger.IsAttached)
+                    //    Debugger.Launch();
+                    //Debugger.Break();
+                    if (Directory.GetCurrentDirectory() == "D:\\Projects\\MTGNetworkPlay\\KCLidgrenDebug\\bin\\Debug")
                     {
-                        ourSettings = "server";
-                        otherSettings = "client\nlocalhost";
+                        string fileDirectory = Directory.GetCurrentDirectory();
+                        string copyDirectoryName = "C:\\Users\\Ian\\Desktop\\MTGMultiPlay";
+                        DirectoryCopy(Directory.GetCurrentDirectory(), copyDirectoryName);
+
+                        string ourSettings, otherSettings;
+                        if (true)// Attach to Server == true
+                        {
+                            ourSettings = "server";
+                            otherSettings = "client\nlocalhost";
+                        }
+                        else
+                        {
+                            ourSettings = "client\nlocalhost";
+                            otherSettings = "server";
+                        }
+
+                        ourSettings += "\n56542";
+                        ourSettings += "\n1900";
+                        ourSettings += "\n1000";
+
+                        otherSettings += "\n56542";
+                        otherSettings += "\n1900";
+                        otherSettings += "\n1000";
+
+                        File.WriteAllText("networkSettings.txt", ourSettings);
+                        File.WriteAllText(Path.Combine(copyDirectoryName, "networkSettings.txt"), otherSettings);
+
+                        var startInfo = new ProcessStartInfo()
+                        {
+                            WorkingDirectory = copyDirectoryName,
+                            FileName = Path.Combine(copyDirectoryName, "GameName1.exe")
+                        };
+                        Process.Start(startInfo);
                     }
-                    else
-                    {
-                        ourSettings = "client\nlocalhost";
-                        otherSettings = "server";
-                    }
-
-                    ourSettings += "\n56542";
-                    ourSettings += "\n1900";
-                    ourSettings += "\n1000";
-
-                    otherSettings += "\n56542";
-                    otherSettings += "\n1900";
-                    otherSettings += "\n1000";
-
-                    File.WriteAllText("networkSettings.txt", ourSettings);
-                    File.WriteAllText(Path.Combine(copyDirectoryName, "networkSettings.txt"), otherSettings);
-
-                    var startInfo = new ProcessStartInfo()
-                    {
-                        WorkingDirectory = copyDirectoryName,
-                        FileName = Path.Combine(copyDirectoryName, "GameName1.exe")
-                    };
-                    Process.Start(startInfo);
                 }
+
+                var game = new Game1();
+                game.Run();
             }
+            catch (Exception exception)
+            {
+                // TODO(ian): include version number
 
-            var game = new Game1();
-            game.Run();
+                string output = DateTime.Now.ToString() + Environment.NewLine +
+                    exception.Message + Environment.NewLine +
+                    exception.StackTrace + Environment.NewLine + Environment.NewLine;
+                File.AppendAllText("crashLog.txt", output);
 
+                // TODO(ian): Upload this file to my server?
+            }
         }
 
         private static void DirectoryCopy(string sourceDriveName, string destinationDirectoryName)
