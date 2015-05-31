@@ -29,7 +29,7 @@ namespace GameName1
 
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager Graphics;
         Network network;
 
         Input input;
@@ -52,7 +52,7 @@ namespace GameName1
         static Texture2D pixelTexture;
 
         public static Color tileColor = new Color(55, 55, 55);
-        Color backgroundColor = new Color(35, 35, 35);
+        public static Color backgroundColor = new Color(35, 35, 35);
         Color textColor = Color.White;
         public static Color flareColor = new Color(33, 44, 188);
         public static Color flareHighlightColor = new Color(73, 84, 226);
@@ -69,7 +69,7 @@ namespace GameName1
         public Game1()
             : base()
         {
-            graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
             Entities = new List<Entity>();
             settings = new Settings();
 
@@ -81,9 +81,9 @@ namespace GameName1
 
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferWidth = settings.width;
-            graphics.PreferredBackBufferHeight = settings.height;
-            graphics.ApplyChanges();
+            Graphics.PreferredBackBufferWidth = settings.width;
+            Graphics.PreferredBackBufferHeight = settings.height;
+            Graphics.ApplyChanges();
 
             input = new Input();
 
@@ -178,6 +178,7 @@ namespace GameName1
         int manaTextureSize = 30;
         int manaBoxWidthInMana = 5;
         int manaBoxHeightInMana = 5;
+        int cardSelectScrollValue;
 
         public void UpdateAndDraw(GameTime gameTime, IMGUIPass pass)
         {
@@ -192,24 +193,24 @@ namespace GameName1
 
             // CARD CREATION
             bool mouseActionConsumed = false;
-            Panel panel = new Panel(new Vector2(5, 0));
+            Panel panel = new Panel(new Vector2(5, 0), renderer);
             panel.Font = font;
             int start = (int)'A';
             int end = (int)'Z';
             for (int i = start; i <= end; i++)
             {
-                if (panel.DoClickableText(renderer, pass, input, ((char)i).ToString()))
+                if (panel.DoClickableText(pass, input, ((char)i).ToString()))
                 {
                     shownLetter = (char)i;
                     mouseActionConsumed = true;
                 }
             }
-            if (panel.DoClickableText(renderer, pass, input, "*"))
+            if (panel.DoClickableText(pass, input, "*"))
             {
                 shownLetter = '*';
                 mouseActionConsumed = true;
             }
-            if (panel.DoClickableText(renderer, pass, input, "C"))
+            if (panel.DoClickableText(pass, input, "C"))
             {
                 SpawnCounterAndSendNetworkMessage();
                 mouseActionConsumed = true;
@@ -267,7 +268,7 @@ namespace GameName1
                     }
                 }
             }
-            panel.DoText(renderer, pass, searchText, searchTextColor);
+            panel.DoText(pass, searchText, searchTextColor);
             panel.Row();
 
             if (input.RightMouseEngaged() && shownLetter != (char)0)
@@ -284,24 +285,27 @@ namespace GameName1
                 else
                     cardsToShow = cardData.Where(x => x.Name.ToUpper()[0] == shownLetter).ToList();
 
+                panel.VerticalScroll(pass, cardSelectScrollValue);
                 foreach (CardData card in cardsToShow)
                 {
                     Color starColor = Color.White;
                     if (!card.Starred)
                         starColor = Color.Black;
-                    if (panel.DoClickableText(renderer, pass, input, "*", starColor))
+                    if (panel.DoClickableText(pass, input, "*", starColor))
                     {
                         card.Starred = !card.Starred;
                         SaveStarredCards();
                     }
-                    if (panel.DoClickableText(renderer, pass, input, card.Name))
+                    if (panel.DoClickableText(pass, input, card.Name))
                     {
                         SpawnCardAndSendNetworkMessage(card.Name, card.TexturePath);
                         shownLetter = (char)0;
                         mouseActionConsumed = true;
+                        cardSelectScrollValue = 0;
                     }
                     panel.Row();
                 }
+                cardSelectScrollValue = panel.EndScroll(pass, input, cardSelectScrollValue);
             }
 
             // MANA BOXES
@@ -316,8 +320,8 @@ namespace GameName1
                 int totalManaBoxWidth = 2 * manaBoxWidth + manaTextureSize;
                 int totalManaBoxHeight = manaTextureSize * manaBoxHeightInMana;
 
-                float startX = graphics.PreferredBackBufferWidth - totalManaBoxWidth - manaTextureSize;
-                Vector2[] refreshButtonPositions = new Vector2[2] { new Vector2(startX, 0), new Vector2(startX, graphics.PreferredBackBufferHeight - totalManaBoxHeight) };
+                float startX = Graphics.PreferredBackBufferWidth - totalManaBoxWidth - manaTextureSize;
+                Vector2[] refreshButtonPositions = new Vector2[2] { new Vector2(startX, 0), new Vector2(startX, Graphics.PreferredBackBufferHeight - totalManaBoxHeight) };
                 int[] avaliableManaIndex = new int[2] { manaBoxIndex_TopAvaliable, manaBoxIndex_BottomAvaliable };
                 int[] usedManaIndex = new int[2] { manaBoxIndex_TopUsed, manaBoxIndex_BottomUsed };
                 for(int i = 0; i <= 1; i++)
