@@ -140,7 +140,15 @@ namespace GameName1
         {
             float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
             float length = Vector2.Distance(point1, point2);
-            drawInfoStack.Push(new DrawInfoTexture(pixelTexture, point1, color, angle, Vector2.Zero, new Vector2(length, lineThickness)));
+            Vector2 scale = new Vector2(length, lineThickness);
+            Vector2 origin = new Vector2(0.5f, 0.5f);
+            float cos = (float)Math.Cos(angle);
+            float sin = (float)Math.Sin(angle);
+            // Note(ian): Ignore the y component on purpose.
+            Vector2 originCounterOffset = new Vector2(scale.X * cos,// - scale.Y * sin,
+                                                      scale.X * sin);// + scale.Y * cos);
+            Vector2 position = point1 + originCounterOffset / 2f;
+            drawInfoStack.Push(new DrawInfoTexture(pixelTexture, position, color, angle, origin, scale));
         }
 
         internal void DrawString(SpriteFont font, string text, Vector2 position, Color color)
